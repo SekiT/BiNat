@@ -24,3 +24,12 @@ Uninhabited (m -: O = n -: I) where
   uninhabited Refl impossible
 Uninhabited (m -: I = n -: O) where
   uninhabited Refl impossible
+
+fromInteger : Integer -> BiNat
+fromInteger i = if i <= 1 then J else fromInteger' i [] where
+  fromInteger' : Integer -> List Bit -> BiNat
+  fromInteger' 1 acc = foldl (-:) J acc
+  fromInteger' i acc =
+    fromInteger'
+      (assert_smaller i (assert_total (div i 2)))
+      ((if assert_total (mod i 2) == 0 then O else I) :: acc)
