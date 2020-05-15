@@ -1,0 +1,3 @@
+package binat
+
+modules = BiNat, BiNat.Properties
