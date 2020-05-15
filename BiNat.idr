@@ -12,7 +12,7 @@ infixl 7 -:
 data BiNat : Type where
   ||| Leading one bit
   J : BiNat
-  ||| Appends a bit to a BiNat.
+  ||| Append a bit to a BiNat.
   ||| `J -: O -: I -: I` corresponds to `1011`.
   (-:) : BiNat -> Bit -> BiNat
 
@@ -25,6 +25,7 @@ Uninhabited (m -: O = n -: I) where
 Uninhabited (m -: I = n -: O) where
   uninhabited Refl impossible
 
+||| Convert an Integer to a BiNat, mapping non-positive numbers to J.
 fromInteger : Integer -> BiNat
 fromInteger i = if i <= 1 then J else fromInteger' i [] where
   fromInteger' : Integer -> List Bit -> BiNat
