@@ -31,9 +31,18 @@ succ' J        acc = foldl (-:) (J -: O) acc
 succ' (n -: O) acc = foldl (-:) (n -: I) acc
 succ' (n -: I) acc = succ' n (O :: acc)
 
-||| Successor function
+||| The successor of a natural number.
 succ : BiNat -> BiNat
 succ n = succ' n []
+
+||| The predecessor of a natural number, but `pred J` is `J`.
+pred : BiNat -> BiNat
+pred n = pred' n [] where
+  pred' : BiNat -> List Bit -> BiNat
+  pred' J              acc = J
+  pred' (n -: I)       acc = foldl (-:) (n -: O) acc
+  pred' (J -: O)       acc = foldl (-:) J acc
+  pred' (ns -: n -: O) acc = pred' (ns -: n) (I :: acc)
 
 nextCarry : Bit -> Bit -> Bit -> Bit
 nextCarry I I I = I
