@@ -39,3 +39,9 @@ succOfPred (ns -: O -: O) _    =
   rewrite predDashReversesAcc (ns -: O) [I] in
   rewrite succDashReversesAcc (pred' (ns -: O) []) [O] in
   rewrite succOfPred (ns -: O) uninhabited in Refl
+
+succInjective : (m : BiNat) -> (n : BiNat) -> succ m = succ n -> m = n
+succInjective m n eq =
+  rewrite sym $ predOfSucc m in
+  rewrite eq in
+  predOfSucc n
