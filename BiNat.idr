@@ -59,16 +59,17 @@ nextAcc I O I = O
 nextAcc I I O = O
 nextAcc _ _ _ = I
 
+plus' : BiNat -> BiNat -> Bit -> List Bit -> BiNat
+plus' J         J         c acc = foldl (-:) (J -: c) acc
+plus' J         ns        O acc = succ' ns acc
+plus' J         (ns -: n) I acc = succ' ns (n :: acc)
+plus' ms        J         O acc = succ' ms acc
+plus' (ms -: m) J         I acc = succ' ms (m :: acc)
+plus' (ms -: m) (ns -: n) c acc = plus' ms ns (nextCarry m n c) (nextAcc m n c :: acc)
+
 ||| Add two natural numbers.
 plus : BiNat -> BiNat -> BiNat
-plus m n = plus' m n O [] where
-  plus' : BiNat -> BiNat -> Bit -> List Bit -> BiNat
-  plus' J         J         c acc = foldl (-:) (J -: c) acc
-  plus' J         ns        O acc = succ' ns acc
-  plus' J         (ns -: n) I acc = succ' ns (n :: acc)
-  plus' ms        J         O acc = succ' ms acc
-  plus' (ms -: m) J         I acc = succ' ms (m :: acc)
-  plus' (ms -: m) (ns -: n) c acc = plus' ms ns (nextCarry m n c) (nextAcc m n c :: acc)
+plus m n = plus' m n O []
 
 ||| Convert an Integer to a BiNat, mapping non-positive numbers to J.
 fromInteger : Integer -> BiNat

@@ -49,3 +49,37 @@ succInjective m n eq =
 plusJIsSucc : (m : BiNat) -> plus m J = succ m
 plusJIsSucc J         = Refl
 plusJIsSucc (ms -: m) = Refl
+
+nextCarrySymmetric : (a : Bit) -> (b : Bit) -> (c : Bit) -> nextCarry a b c = nextCarry b a c
+nextCarrySymmetric O O O = Refl
+nextCarrySymmetric O O I = Refl
+nextCarrySymmetric O I O = Refl
+nextCarrySymmetric O I I = Refl
+nextCarrySymmetric I O O = Refl
+nextCarrySymmetric I O I = Refl
+nextCarrySymmetric I I O = Refl
+nextCarrySymmetric I I I = Refl
+
+nextAccSymmetric : (a : Bit) -> (b : Bit) -> (c : Bit) -> nextAcc a b c = nextAcc b a c
+nextAccSymmetric O O O = Refl
+nextAccSymmetric O O I = Refl
+nextAccSymmetric O I O = Refl
+nextAccSymmetric O I I = Refl
+nextAccSymmetric I O O = Refl
+nextAccSymmetric I O I = Refl
+nextAccSymmetric I I O = Refl
+nextAccSymmetric I I I = Refl
+
+plusDashSymmetric : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) -> plus' m n carry acc = plus' n m carry acc
+plusDashSymmetric J         J         carry acc = Refl
+plusDashSymmetric J         (ns -: n) O     acc = Refl
+plusDashSymmetric J         (ns -: n) I     acc = Refl
+plusDashSymmetric (ms -: m) J         O     acc = Refl
+plusDashSymmetric (ms -: m) J         I     acc = Refl
+plusDashSymmetric (ms -: m) (ns -: n) carry acc =
+  rewrite nextCarrySymmetric n m carry in
+  rewrite nextAccSymmetric n m carry in
+  plusDashSymmetric ms ns (nextCarry m n carry) (nextAcc m n carry :: acc)
+
+plusSymmetric : (m : BiNat) -> (n : BiNat) -> plus m n = plus n m
+plusSymmetric m n = plusDashSymmetric m n O []
