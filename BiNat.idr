@@ -1,7 +1,7 @@
 ||| Binary representation of natural numbers.
 module BiNat
 
-%access export
+%access public export
 
 data Bit : Type where
   O : Bit
@@ -15,3 +15,12 @@ data BiNat : Type where
   ||| Appends a bit to a BiNat.
   ||| `J -: O -: I -: I` corresponds to `1011`.
   (-:) : BiNat -> Bit -> BiNat
+
+Uninhabited (J = n -: b) where
+  uninhabited Refl impossible
+Uninhabited (n -: b = J) where
+  uninhabited Refl impossible
+Uninhabited (m -: O = n -: I) where
+  uninhabited Refl impossible
+Uninhabited (m -: I = n -: O) where
+  uninhabited Refl impossible
