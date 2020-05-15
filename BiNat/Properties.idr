@@ -46,9 +46,13 @@ succInjective m n eq =
   rewrite eq in
   predOfSucc n
 
-plusJIsSucc : (m : BiNat) -> plus m J = succ m
+plusJIsSucc : (n : BiNat) -> plus n J = succ n
 plusJIsSucc J         = Refl
-plusJIsSucc (ms -: m) = Refl
+plusJIsSucc (ns -: n) = Refl
+
+jPlusIsSucc : (n : BiNat) -> plus J n = succ n
+jPlusIsSucc J         = Refl
+jPlusIsSucc (ns -: n) = Refl
 
 nextCarrySymmetric : (a : Bit) -> (b : Bit) -> (c : Bit) -> nextCarry a b c = nextCarry b a c
 nextCarrySymmetric O O O = Refl
@@ -70,7 +74,8 @@ nextAccSymmetric I O I = Refl
 nextAccSymmetric I I O = Refl
 nextAccSymmetric I I I = Refl
 
-plusDashSymmetric : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) -> plus' m n carry acc = plus' n m carry acc
+plusDashSymmetric : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
+  plus' m n carry acc = plus' n m carry acc
 plusDashSymmetric J         J         carry acc = Refl
 plusDashSymmetric J         (ns -: n) O     acc = Refl
 plusDashSymmetric J         (ns -: n) I     acc = Refl
@@ -83,3 +88,217 @@ plusDashSymmetric (ms -: m) (ns -: n) carry acc =
 
 plusSymmetric : (m : BiNat) -> (n : BiNat) -> plus m n = plus n m
 plusSymmetric m n = plusDashSymmetric m n O []
+
+plusDashReversesAcc : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
+  plus' m n carry acc = foldl (-:) (plus' m n carry []) acc
+plusDashReversesAcc J         J         carry acc = Refl
+plusDashReversesAcc J         (ns -: n) O     acc = succDashReversesAcc (ns -: n) acc
+plusDashReversesAcc J         (ns -: n) I     acc =
+  rewrite succDashReversesAcc ns [n] in
+  rewrite succDashReversesAcc ns (n :: acc) in Refl
+plusDashReversesAcc (ms -: m) J         O     acc = succDashReversesAcc (ms -: m) acc
+plusDashReversesAcc (ms -: m) J         I     acc =
+  rewrite succDashReversesAcc ms [m] in
+  rewrite succDashReversesAcc ms (m :: acc) in Refl
+plusDashReversesAcc (ms -: m) (ns -: n) carry acc =
+  rewrite plusDashReversesAcc ms ns (nextCarry m n carry) (nextAcc m n carry :: acc) in
+  rewrite plusDashReversesAcc ms ns (nextCarry m n carry) [nextAcc m n carry] in Refl
+
+succGoesToCarry : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus' m n O []) acc = plus' m n I acc
+succGoesToCarry J         J         acc = Refl
+succGoesToCarry (ms -: O) J         acc = Refl
+succGoesToCarry (ms -: I) J         acc =
+  rewrite succDashReversesAcc ms [O] in
+  rewrite succDashReversesAcc ms (I :: acc) in Refl
+succGoesToCarry J         (ns -: O) acc = Refl
+succGoesToCarry J         (ns -: I) acc =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite succDashReversesAcc ns (I :: acc) in Refl
+succGoesToCarry (ms -: O) (ns -: O) acc = rewrite plusDashReversesAcc ms ns O [O] in rewrite plusDashReversesAcc ms ns O (I :: acc) in Refl
+succGoesToCarry (ms -: O) (ns -: I) acc = rewrite plusDashReversesAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
+succGoesToCarry (ms -: I) (ns -: O) acc = rewrite plusDashReversesAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
+succGoesToCarry (ms -: I) (ns -: I) acc = rewrite plusDashReversesAcc ms ns I [O] in rewrite plusDashReversesAcc ms ns I (I :: acc) in Refl
+
+succDashCommutesToPlusDashSnd : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus m n) acc = plus' m (succ n) O acc
+succDashCommutesToPlusDashSnd J         J         acc = Refl
+succDashCommutesToPlusDashSnd J         (ns -: O) acc = Refl
+succDashCommutesToPlusDashSnd J         (ns -: I) acc =
+  rewrite succDashReversesAcc (succ' ns [O]) acc in
+  rewrite plusDashReversesAcc J (succ' ns [O]) O acc in
+  rewrite jPlusIsSucc (succ' ns [O]) in Refl
+succDashCommutesToPlusDashSnd (ms -: O) J         acc =
+  rewrite succDashReversesAcc ms (O :: acc) in
+  rewrite plusDashReversesAcc ms J O (O :: acc) in
+  rewrite plusJIsSucc ms in Refl
+succDashCommutesToPlusDashSnd (ms -: I) J         acc =
+  rewrite succDashReversesAcc ms [O] in
+  rewrite sym $ plusJIsSucc ms in
+  rewrite plusDashReversesAcc ms J O (I :: acc) in Refl
+succDashCommutesToPlusDashSnd (ms -: O) (ns -: O) acc =
+  rewrite plusDashReversesAcc ms ns O [O] in
+  rewrite plusDashReversesAcc ms ns O (I :: acc) in Refl
+succDashCommutesToPlusDashSnd (ms -: O) (ns -: I) acc =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite succDashCommutesToPlusDashSnd ms ns (O :: acc) in
+  rewrite succDashReversesAcc ns [O] in Refl
+succDashCommutesToPlusDashSnd (ms -: I) (ns -: O) acc =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite succGoesToCarry ms ns (O :: acc) in Refl
+succDashCommutesToPlusDashSnd (ms -: I) (ns -: I) acc =
+  rewrite plusDashReversesAcc ms ns I [O] in
+  rewrite sym $ succGoesToCarry ms ns [] in
+  rewrite succDashReversesAcc ns [O] in
+  rewrite sym $ succDashCommutesToPlusDashSnd ms ns (I :: acc) in
+  rewrite succDashReversesAcc (plus' ms ns O []) (I :: acc) in Refl
+
+succDashCommutesToPlusDashFst : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus m n) acc = plus' (succ m) n O acc
+succDashCommutesToPlusDashFst m n acc =
+  rewrite plusSymmetric m n in
+  rewrite succDashCommutesToPlusDashSnd n m acc in
+  rewrite plusDashSymmetric n (succ m) O acc in Refl
+
+plusAssociative : (l : BiNat) -> (m : BiNat) -> (n : BiNat) -> plus l (plus m n) = plus (plus l m) n
+plusAssociative J         J         J         = Refl
+plusAssociative J         J         (ns -: O) =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite plusDashReversesAcc J ns O [O] in
+  rewrite jPlusIsSucc ns in Refl
+plusAssociative J         J         (ns -: I) =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite plusDashReversesAcc J ns O [I] in
+  rewrite jPlusIsSucc ns in Refl
+plusAssociative J         (ms -: O) J         = Refl
+plusAssociative J         (ms -: I) J         = plusDashSymmetric J (succ' ms [O]) O []
+plusAssociative (ls -: O) J         J         =
+  rewrite succDashReversesAcc ls [O] in
+  rewrite plusDashReversesAcc ls J O [O] in
+  rewrite plusJIsSucc ls in Refl
+plusAssociative (ls -: I) J         J         =
+  rewrite succDashReversesAcc ls [O] in
+  rewrite plusDashReversesAcc ls J O [I] in
+  rewrite plusJIsSucc ls in Refl
+plusAssociative J         (ms -: O) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [O] in
+  rewrite plusDashReversesAcc ms ns O [I] in Refl
+plusAssociative J         (ms -: O) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite sym $ succGoesToCarry ms ns [O] in Refl
+plusAssociative J         (ms -: I) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite succDashReversesAcc (plus' ms ns O []) [O] in
+  rewrite sym $ jPlusIsSucc (plus' ms ns O []) in
+  rewrite succDashReversesAcc ms [O] in
+  rewrite plusDashReversesAcc (succ' ms []) ns O [O] in
+  rewrite sym $ jPlusIsSucc ms in
+  rewrite plusAssociative J ms ns in Refl
+plusAssociative J         (ms -: I) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns I [O] in
+  rewrite sym $ succGoesToCarry ms ns [] in
+  rewrite succDashReversesAcc ms [O] in
+  rewrite plusDashReversesAcc (succ' ms []) ns O [I] in
+  rewrite sym $ jPlusIsSucc ms in
+  rewrite sym $ jPlusIsSucc (plus' ms ns O []) in
+  rewrite plusAssociative J ms ns in Refl
+plusAssociative (ls -: O) J         (ns -: O) = Refl
+plusAssociative (ls -: O) J         (ns -: I) =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite plusDashReversesAcc ls (succ' ns []) O [O] in
+  rewrite sym $ plusJIsSucc ns in
+  rewrite sym $ succGoesToCarry ls ns [O] in
+  rewrite succDashReversesAcc (plus' ls ns O []) [O] in
+  rewrite sym $ plusJIsSucc (plus' ls ns O []) in
+  rewrite plusAssociative ls ns J in Refl
+plusAssociative (ls -: I) J         (ns -: O) =
+  rewrite sym $ succGoesToCarry ls ns [O] in
+  rewrite succDashReversesAcc (plus' ls ns O []) [O] in
+  rewrite sym $ jPlusIsSucc (plus' ls ns O []) in
+  rewrite succDashReversesAcc ls [O] in
+  rewrite plusDashReversesAcc (succ' ls []) ns O [O] in
+  rewrite sym $ jPlusIsSucc ls in
+  rewrite plusAssociative J ls ns in Refl
+plusAssociative (ls -: I) J         (ns -: I) =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite plusDashReversesAcc ls (succ' ns []) O [I] in
+  rewrite sym $ jPlusIsSucc ns in
+  rewrite succDashReversesAcc ls [O] in
+  rewrite plusDashReversesAcc (succ' ls []) ns O [I] in
+  rewrite sym $ plusJIsSucc ls in
+  rewrite plusAssociative ls J ns in Refl
+plusAssociative (ls -: O) (ns -: O) J         =
+  rewrite plusDashReversesAcc ls ns O [O] in
+  rewrite plusDashReversesAcc ls ns O [I] in Refl
+plusAssociative (ls -: O) (ns -: I) J         =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite sym $ plusJIsSucc ns in
+  rewrite plusDashReversesAcc ls (plus' ns J O []) O [O] in
+  rewrite plusDashReversesAcc ls ns O [I] in
+  rewrite succDashReversesAcc (plus' ls ns O []) [O] in
+  rewrite sym $ plusJIsSucc (plus' ls ns O []) in
+  rewrite plusAssociative ls ns J in Refl
+plusAssociative (ls -: I) (ns -: O) J         =
+  rewrite plusDashReversesAcc ls ns I [O] in
+  rewrite sym $ succGoesToCarry ls ns [] in
+  rewrite sym $ plusJIsSucc (plus' ls ns O []) in
+  rewrite plusDashReversesAcc ls ns O [I] in
+  rewrite succDashReversesAcc (plus' ls ns O []) [O] in
+  rewrite sym $ plusJIsSucc (plus' ls ns O []) in Refl
+plusAssociative (ls -: I) (ns -: I) J         =
+  rewrite succDashReversesAcc ns [O] in
+  rewrite plusDashReversesAcc ls (succ' ns []) O [I] in
+  rewrite sym $ plusJIsSucc ns in
+  rewrite plusDashReversesAcc ls ns I [O] in
+  rewrite sym $ succGoesToCarry ls ns [] in
+  rewrite sym $ plusJIsSucc (plus' ls ns O []) in
+  rewrite plusAssociative ls ns J in Refl
+plusAssociative (ls -: O) (ms -: O) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [O] in
+  rewrite plusDashReversesAcc ls (plus' ms ns O []) O [O] in
+  rewrite plusDashReversesAcc ls ms O [O] in
+  rewrite plusDashReversesAcc (plus' ls ms O []) ns O [O] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: O) (ms -: O) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite plusDashReversesAcc ls (plus' ms ns O []) O [I] in
+  rewrite plusDashReversesAcc ls ms O [O] in
+  rewrite plusDashReversesAcc (plus' ls ms O []) ns O [I] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: O) (ms -: I) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite plusDashReversesAcc ls (plus' ms ns O []) O [I] in
+  rewrite plusDashReversesAcc ls ms O [I] in
+  rewrite plusDashReversesAcc (plus' ls ms O []) ns O [I] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: O) (ms -: I) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns I [O] in
+  rewrite sym $ succGoesToCarry ms ns [] in
+  rewrite plusDashReversesAcc ls ms O [I] in
+  rewrite sym $ succGoesToCarry (plus' ls ms O []) ns [O] in
+  rewrite sym $ plusAssociative ls ms ns in
+  rewrite succDashCommutesToPlusDashSnd ls (plus' ms ns O []) [O] in Refl
+plusAssociative (ls -: I) (ms -: O) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [O] in
+  rewrite plusDashReversesAcc ls (plus' ms ns O []) O [I] in
+  rewrite plusDashReversesAcc ls ms O [I] in
+  rewrite plusDashReversesAcc (plus' ls ms O []) ns O [I] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: I) (ms -: O) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite sym $ succGoesToCarry ls (plus' ms ns O []) [O] in
+  rewrite plusDashReversesAcc ls ms O [I] in
+  rewrite sym $ succGoesToCarry (plus' ls ms O []) ns [O] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: I) (ms -: I) (ns -: O) =
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite sym $ succGoesToCarry ls (plus' ms ns O []) [O] in
+  rewrite plusDashReversesAcc ls ms I [O] in
+  rewrite sym $ succGoesToCarry ls ms [] in
+  rewrite sym $ succDashCommutesToPlusDashFst (plus' ls ms O []) ns [O] in
+  rewrite plusAssociative ls ms ns in Refl
+plusAssociative (ls -: I) (ms -: I) (ns -: I) =
+  rewrite plusDashReversesAcc ms ns I [O] in
+  rewrite sym $ succGoesToCarry ms ns [] in
+  rewrite sym $ succDashCommutesToPlusDashSnd ls (plus' ms ns O []) [I] in
+  rewrite plusDashReversesAcc ls ms I [O] in
+  rewrite sym $ succGoesToCarry ls ms [] in
+  rewrite sym $ succDashCommutesToPlusDashFst (plus' ls ms O []) ns [I] in
+  rewrite plusAssociative ls ms ns in Refl
