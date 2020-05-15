@@ -45,3 +45,7 @@ succInjective m n eq =
   rewrite sym $ predOfSucc m in
   rewrite eq in
   predOfSucc n
+
+plusJIsSucc : (m : BiNat) -> plus m J = succ m
+plusJIsSucc J         = Refl
+plusJIsSucc (ms -: m) = Refl
