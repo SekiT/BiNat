@@ -29,3 +29,13 @@ predOfSucc (ns -: I -: I) =
   rewrite predDashReversesAcc (succ' ns [] -: O) [I] in
   rewrite sym $ succDashReversesAcc ns [O] in
   rewrite predOfSucc (ns -: I) in Refl
+
+succOfPred : (n : BiNat) -> Not (n = J) -> succ (pred n) = n
+succOfPred J              notJ = absurd (notJ Refl)
+succOfPred (n -: I)       _    = Refl
+succOfPred (J -: O)       _    = Refl
+succOfPred (ns -: I -: O) _    = Refl
+succOfPred (ns -: O -: O) _    =
+  rewrite predDashReversesAcc (ns -: O) [I] in
+  rewrite succDashReversesAcc (pred' (ns -: O) []) [O] in
+  rewrite succOfPred (ns -: O) uninhabited in Refl
