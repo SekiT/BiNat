@@ -107,19 +107,16 @@ plusDashReversesAcc (ms -: m) (ns -: n) carry acc =
 succGoesToCarry : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus' m n O []) acc = plus' m n I acc
 succGoesToCarry J         J         acc = Refl
 succGoesToCarry (ms -: O) J         acc = Refl
-succGoesToCarry (ms -: I) J         acc =
-  rewrite succDashReversesAcc ms [O] in
-  rewrite succDashReversesAcc ms (I :: acc) in Refl
+succGoesToCarry (ms -: I) J         acc = rewrite succDashReversesAcc ms [O] in rewrite succDashReversesAcc ms (I :: acc) in Refl
 succGoesToCarry J         (ns -: O) acc = Refl
-succGoesToCarry J         (ns -: I) acc =
-  rewrite succDashReversesAcc ns [O] in
-  rewrite succDashReversesAcc ns (I :: acc) in Refl
+succGoesToCarry J         (ns -: I) acc = rewrite succDashReversesAcc ns [O] in rewrite succDashReversesAcc ns (I :: acc) in Refl
 succGoesToCarry (ms -: O) (ns -: O) acc = rewrite plusDashReversesAcc ms ns O [O] in rewrite plusDashReversesAcc ms ns O (I :: acc) in Refl
 succGoesToCarry (ms -: O) (ns -: I) acc = rewrite plusDashReversesAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
 succGoesToCarry (ms -: I) (ns -: O) acc = rewrite plusDashReversesAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
 succGoesToCarry (ms -: I) (ns -: I) acc = rewrite plusDashReversesAcc ms ns I [O] in rewrite plusDashReversesAcc ms ns I (I :: acc) in Refl
 
-succDashCommutesToPlusDashSnd : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus m n) acc = plus' m (succ n) O acc
+succDashCommutesToPlusDashSnd : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+  succ' (plus m n) acc = plus' m (succ n) O acc
 succDashCommutesToPlusDashSnd J         J         acc = Refl
 succDashCommutesToPlusDashSnd J         (ns -: O) acc = Refl
 succDashCommutesToPlusDashSnd J         (ns -: I) acc =
@@ -151,7 +148,8 @@ succDashCommutesToPlusDashSnd (ms -: I) (ns -: I) acc =
   rewrite sym $ succDashCommutesToPlusDashSnd ms ns (I :: acc) in
   rewrite succDashReversesAcc (plus' ms ns O []) (I :: acc) in Refl
 
-succDashCommutesToPlusDashFst : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus m n) acc = plus' (succ m) n O acc
+succDashCommutesToPlusDashFst : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+  succ' (plus m n) acc = plus' (succ m) n O acc
 succDashCommutesToPlusDashFst m n acc =
   rewrite plusSymmetric m n in
   rewrite succDashCommutesToPlusDashSnd n m acc in
@@ -313,7 +311,8 @@ shiftLeftDoubles (ns -: I) =
   rewrite sym $ succGoesToCarry ns ns [] in
   rewrite sym $ shiftLeftDoubles ns in Refl
 
-composeFunctions : {T : BiNat -> Type} -> ((k : BiNat) -> T k -> T (succ k)) -> (m : BiNat) -> (n : BiNat) -> T m -> T (plus m n)
+composeFunctions : {T : BiNat -> Type} -> ((k : BiNat) -> T k -> T (succ k)) ->
+  (m : BiNat) -> (n : BiNat) -> T m -> T (plus m n)
 composeFunctions f m J         pm = replace (sym $ plusJIsSucc m) (f m pm)
 composeFunctions f m (ns -: O) pm =
   replace {P = \z => T (plus m z)} (sym $ shiftLeftDoubles ns) $
