@@ -302,3 +302,13 @@ plusAssociative (ls -: I) (ms -: I) (ns -: I) =
   rewrite sym $ succGoesToCarry ls ms [] in
   rewrite sym $ succDashCommutesToPlusDashFst (plus' ls ms O []) ns [I] in
   rewrite plusAssociative ls ms ns in Refl
+
+shiftLeftDoubles : (n : BiNat) -> n -: O = plus n n
+shiftLeftDoubles J         = Refl
+shiftLeftDoubles (ns -: O) =
+  rewrite plusDashReversesAcc ns ns O [O] in
+  rewrite shiftLeftDoubles ns in Refl
+shiftLeftDoubles (ns -: I) =
+  rewrite plusDashReversesAcc ns ns I [O] in
+  rewrite sym $ succGoesToCarry ns ns [] in
+  rewrite sym $ shiftLeftDoubles ns in Refl
