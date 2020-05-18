@@ -333,3 +333,133 @@ induction prop step pj (ns -: n) =
   replace (succOfPred (ns -: n) uninhabited) $
   replace (jPlusIsSucc (pred (ns -: n))) $
   composeFunctions step J (pred (ns -: n)) pj
+
+succIsNotJ : (n : BiNat) -> Not (succ n = J)
+succIsNotJ J         eq = uninhabited eq
+succIsNotJ (ns -: O) eq = uninhabited eq
+succIsNotJ (ns -: I) eq = uninhabited $ replace {P = \z => z = J} (succDashReversesAcc ns [O]) eq
+
+predOfDoubled : (n : BiNat) -> Not (n = J) -> pred (n -: O) = pred n -: I
+predOfDoubled J notJ = absurd $ notJ Refl
+predOfDoubled (ns -: O) _ = predDashReversesAcc (ns -: O) [I]
+predOfDoubled (ns -: I) _ = Refl
+
+predCommutesToPlusSnd : (m : BiNat) -> (n : BiNat) -> Not (n = J) ->
+  pred (plus m n) = plus m (pred n)
+predCommutesToPlusSnd m              J              notJ = absurd $ notJ Refl
+predCommutesToPlusSnd J              n              notJ =
+  rewrite jPlusIsSucc n in
+  rewrite predOfSucc n in
+  rewrite jPlusIsSucc (pred n) in
+  rewrite succOfPred n notJ in Refl
+predCommutesToPlusSnd (J -: O)       (J -: O)       _ = Refl
+predCommutesToPlusSnd (ms -: O -: O) (J -: O)       _ = Refl
+predCommutesToPlusSnd (ms -: I -: O) (J -: O)       _ =
+  rewrite succDashReversesAcc ms [O, O] in
+  rewrite sym $ succDashReversesAcc ms [O] in
+  rewrite predDashReversesAcc (succ' ms [O]) [I] in
+  rewrite predOfSucc (ms -: I) in Refl
+predCommutesToPlusSnd (J -: O)       (ns -: O -: O) _ =
+  rewrite predDashReversesAcc (ns -: O) [I] in
+  rewrite plusDashReversesAcc J (pred' (ns -: O) []) O [I] in
+  rewrite jPlusIsSucc (pred' (ns -: O) []) in
+  rewrite succOfPred (ns -: O) uninhabited in Refl
+predCommutesToPlusSnd (ms -: O -: O) (ns -: O -: O) _ =
+  rewrite plusDashReversesAcc ms ns O [O, O] in
+  rewrite sym $ plusDashReversesAcc ms ns O [O] in
+  rewrite predDashReversesAcc (plus' ms ns O [O]) [I] in
+  rewrite predDashReversesAcc (ns -: O) [I] in
+  rewrite plusDashReversesAcc (ms -: O) (pred' (ns -: O) []) O [I] in
+  rewrite predCommutesToPlusSnd (ms -: O) (ns -: O) uninhabited in Refl
+predCommutesToPlusSnd (ms -: I -: O) (ns -: O -: O) _ =
+  rewrite plusDashReversesAcc ms ns O [I, O] in
+  rewrite predDashReversesAcc (ns -: O) [I] in
+  rewrite plusDashReversesAcc (ms -: I) (pred' (ns -: O) []) O [I] in
+  rewrite sym $ predCommutesToPlusSnd (ms -: I) (ns -: O) uninhabited in
+  rewrite plusDashReversesAcc ms ns O [I] in Refl
+predCommutesToPlusSnd (J -: O)       (ns -: I -: O) _ =
+  rewrite succDashReversesAcc ns [O, O] in
+  rewrite predDashReversesAcc (succ' ns [] -: O) [I] in
+  rewrite sym $ succDashReversesAcc ns [O] in
+  rewrite predOfSucc (ns -: I) in Refl
+predCommutesToPlusSnd (ms -: O -: O) (ns -: I -: O) _ =
+  rewrite plusDashReversesAcc ms ns O [I, O] in sym $ plusDashReversesAcc ms ns O [O, I]
+predCommutesToPlusSnd (ms -: I -: O) (ns -: I -: O) _ =
+  rewrite plusDashReversesAcc ms ns I [O, O] in
+  rewrite sym $ plusDashReversesAcc ms ns I [O] in
+  rewrite predDashReversesAcc (plus' ms ns I [O]) [I] in
+  rewrite predCommutesToPlusSnd (ms -: I) (ns -: I) uninhabited in
+  rewrite plusDashReversesAcc ms ns O [I] in
+  rewrite plusDashReversesAcc ms ns O [I, I] in Refl
+predCommutesToPlusSnd (ms -: O)      (ns -: I)      _ =
+  rewrite plusDashReversesAcc ms ns O [I] in sym $ plusDashReversesAcc ms ns O [O]
+predCommutesToPlusSnd (ms -: I)      (J -: O)       _ =
+  rewrite plusDashReversesAcc ms J O [I] in
+  rewrite plusJIsSucc ms in
+  rewrite succDashReversesAcc ms [O] in Refl
+predCommutesToPlusSnd (ms -: I)      (ns -: O -: O) _ =
+  rewrite plusDashReversesAcc ms (ns -: O) O [I] in
+  rewrite predDashReversesAcc (ns -: O) [I] in
+  rewrite plusDashReversesAcc ms (pred' (ns -: O) []) I [O] in
+  rewrite sym $ succGoesToCarry ms (pred' (ns -: O) []) [] in
+  rewrite sym $ plusJIsSucc (plus' ms (pred' (ns -: O) []) O []) in
+  rewrite sym $ plusAssociative ms (pred' (ns -: O) []) J in
+  rewrite plusJIsSucc (pred' (ns -: O) []) in
+  rewrite succOfPred (ns -: O) uninhabited in Refl
+predCommutesToPlusSnd (ms -: I)      (ns -: I -: O) _ =
+  rewrite plusDashReversesAcc ms (ns -: I) O [I] in
+  rewrite plusDashReversesAcc ms (ns -: O) I [O] in
+  rewrite sym $ succGoesToCarry ms (ns -: O) [] in
+  rewrite sym $ plusJIsSucc (plus' ms (ns -: O) O []) in
+  rewrite sym $ plusAssociative ms (ns -: O) J in Refl
+predCommutesToPlusSnd (ms -: I)      (ns -: I)      _ =
+  rewrite sym $ succGoesToCarry ms ns [O] in
+  rewrite succDashReversesAcc (plus' ms ns O []) [O] in
+  rewrite predOfDoubled (succ' (plus' ms ns O []) []) (succIsNotJ (plus' ms ns O [])) in
+  rewrite predOfSucc (plus' ms ns O []) in
+  sym $ plusDashReversesAcc ms ns O [I]
+
+multDashAddsAccMinusJ : (m : BiNat) -> (n : BiNat) -> (acc : BiNat) ->
+  mult' m n acc = pred $ plus (mult' m n J) acc
+multDashAddsAccMinusJ J         ns acc = rewrite plusJIsSucc ns in rewrite predOfSucc ns in Refl
+multDashAddsAccMinusJ (ms -: O) ns acc = multDashAddsAccMinusJ ms (ns -: O) acc
+multDashAddsAccMinusJ (ms -: I) ns acc =
+  rewrite multDashAddsAccMinusJ ms (ns -: O) (plus' ns acc O []) in
+  rewrite multDashAddsAccMinusJ ms (ns -: O) (plus' ns J O []) in
+  rewrite plusAssociative (mult' ms (ns -: O) J) ns J in
+  rewrite plusJIsSucc (plus' (mult' ms (ns -: O) J) ns O []) in
+  rewrite predOfSucc (plus' (mult' ms (ns -: O) J) ns O []) in
+  rewrite plusAssociative (mult' ms (ns -: O) J) ns acc in Refl
+
+multDistributesPlus : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
+  mult l (plus m n) = plus (mult l m) (mult l n)
+multDistributesPlus J m n =
+  rewrite plusJIsSucc (plus' m n O []) in
+  rewrite predOfSucc (plus' m n O []) in
+  rewrite plusJIsSucc m in
+  rewrite predOfSucc m in
+  rewrite plusJIsSucc n in
+  rewrite predOfSucc n in Refl
+multDistributesPlus (ls -: O) m n =
+  rewrite sym $ plusDashReversesAcc m n O [O] in
+  multDistributesPlus ls (m -: O) (n -: O)
+multDistributesPlus (ls -: I) m n =
+  rewrite plusJIsSucc (plus' m n O []) in
+  rewrite multDashAddsAccMinusJ ls (plus' m n O [] -: O) (succ (plus' m n O [])) in
+  rewrite predCommutesToPlusSnd (mult ls (plus m n -: O)) (succ (plus m n)) (succIsNotJ (plus m n)) in
+  rewrite predOfSucc (plus m n) in
+  rewrite sym $ plusDashReversesAcc m n O [O] in
+  rewrite plusJIsSucc m in
+  rewrite plusJIsSucc n in
+  rewrite multDashAddsAccMinusJ ls (m -: O) (succ m) in
+  rewrite multDashAddsAccMinusJ ls (n -: O) (succ n) in
+  rewrite predCommutesToPlusSnd (mult ls (m -: O)) (succ m) (succIsNotJ m) in
+  rewrite predCommutesToPlusSnd (mult ls (n -: O)) (succ n) (succIsNotJ n) in
+  rewrite predOfSucc m in
+  rewrite predOfSucc n in
+  rewrite sym $ plusAssociative (mult ls (m -: O)) m (plus (mult ls (n -: O)) n) in
+  rewrite plusSymmetric m (plus (mult ls (n -: O)) n) in
+  rewrite sym $ plusAssociative (mult ls (n -: O)) n m in
+  rewrite plusSymmetric n m in
+  rewrite plusAssociative (mult ls (m -: O)) (mult ls (n -: O)) (plus' m n O []) in
+  rewrite multDistributesPlus ls (m -: O) (n -: O) in Refl
