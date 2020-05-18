@@ -4,9 +4,7 @@ module BiNat
 %access public export
 %default total
 
-data Bit : Type where
-  O : Bit
-  I : Bit
+data Bit = O | I
 
 infixl 7 -:
 
