@@ -463,3 +463,42 @@ multDistributesPlusRight (ls -: I) m n =
   rewrite plusSymmetric n m in
   rewrite plusAssociative (mult ls (m -: O)) (mult ls (n -: O)) (plus' m n O []) in
   rewrite multDistributesPlusRight ls (m -: O) (n -: O) in Refl
+
+multJIsId : (n : BiNat) -> mult n J = n
+multJIsId J = Refl
+multJIsId (ns -: O) =
+  rewrite multDistributesPlusRight ns J J in
+  rewrite multJIsId ns in
+  rewrite shiftLeftDoubles ns in Refl
+multJIsId (ns -: I) =
+  rewrite multDashAddsAccMinusJ ns (J -: O) (J -: O) in
+  rewrite multDistributesPlusRight ns J J in
+  rewrite multJIsId ns in
+  rewrite sym $ shiftLeftDoubles ns in
+  rewrite plusDashReversesAcc ns J O [O] in
+  rewrite plusJIsSucc ns in
+  rewrite predOfDoubled (succ ns) (succIsNotJ ns) in
+  rewrite predOfSucc ns in Refl
+
+multDistributesPlusLeft : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
+  mult (plus l m) n = plus (mult l n) (mult m n)
+multDistributesPlusLeft l m n =
+  induction
+    (\k => mult (plus l m) k = plus (mult l k) (mult m k))
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite multDistributesPlusRight (plus' l m O []) k J in
+      rewrite pk in
+      rewrite multJIsId (plus' l m O []) in
+      rewrite multDistributesPlusRight l k J in
+      rewrite multDistributesPlusRight m k J in
+      rewrite multJIsId l in
+      rewrite multJIsId m in
+      rewrite sym $ plusAssociative (mult l k) l (plus (mult m k) m) in
+      rewrite plusSymmetric l (plus (mult m k) m) in
+      rewrite sym $ plusAssociative (mult m k) m l in
+      rewrite plusSymmetric m l in
+      sym $ plusAssociative (mult l k) (mult m k) (plus l m)
+    )
+    (rewrite multJIsId (plus l m) in rewrite multJIsId l in rewrite multJIsId m in Refl)
+    n
