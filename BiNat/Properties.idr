@@ -431,19 +431,19 @@ multDashAddsAccMinusJ (ms -: I) ns acc =
   rewrite predOfSucc (plus' (mult' ms (ns -: O) J) ns O []) in
   rewrite plusAssociative (mult' ms (ns -: O) J) ns acc in Refl
 
-multDistributesPlus : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
+multDistributesPlusRight : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
   mult l (plus m n) = plus (mult l m) (mult l n)
-multDistributesPlus J m n =
+multDistributesPlusRight J m n =
   rewrite plusJIsSucc (plus' m n O []) in
   rewrite predOfSucc (plus' m n O []) in
   rewrite plusJIsSucc m in
   rewrite predOfSucc m in
   rewrite plusJIsSucc n in
   rewrite predOfSucc n in Refl
-multDistributesPlus (ls -: O) m n =
+multDistributesPlusRight (ls -: O) m n =
   rewrite sym $ plusDashReversesAcc m n O [O] in
-  multDistributesPlus ls (m -: O) (n -: O)
-multDistributesPlus (ls -: I) m n =
+  multDistributesPlusRight ls (m -: O) (n -: O)
+multDistributesPlusRight (ls -: I) m n =
   rewrite plusJIsSucc (plus' m n O []) in
   rewrite multDashAddsAccMinusJ ls (plus' m n O [] -: O) (succ (plus' m n O [])) in
   rewrite predCommutesToPlusSnd (mult ls (plus m n -: O)) (succ (plus m n)) (succIsNotJ (plus m n)) in
@@ -462,4 +462,4 @@ multDistributesPlus (ls -: I) m n =
   rewrite sym $ plusAssociative (mult ls (n -: O)) n m in
   rewrite plusSymmetric n m in
   rewrite plusAssociative (mult ls (m -: O)) (mult ls (n -: O)) (plus' m n O []) in
-  rewrite multDistributesPlus ls (m -: O) (n -: O) in Refl
+  rewrite multDistributesPlusRight ls (m -: O) (n -: O) in Refl
