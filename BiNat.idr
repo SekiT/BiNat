@@ -13,6 +13,7 @@ infixl 7 -:
 data BiNat : Type where
   ||| Leading one bit
   J : BiNat
+
   ||| Append a bit to a BiNat.
   ||| `J -: O -: I -: I` corresponds to `1011`.
   (-:) : BiNat -> Bit -> BiNat
