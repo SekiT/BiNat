@@ -346,26 +346,21 @@ predOfDoubled (ns -: I) _ = Refl
 
 predCommutesToPlusSnd : (m : BiNat) -> (n : BiNat) -> Not (n = J) ->
   pred (plus m n) = plus m (pred n)
-predCommutesToPlusSnd m n notJ =
-  induction
-    (\k => pred (plus k n) = plus k (pred n))
-    (\k, pk =>
-      rewrite sym $ jPlusIsSucc k in
-      rewrite sym $ plusAssociative J k n in
-      rewrite jPlusIsSucc (plus k n) in
-      rewrite predOfSucc (plus k n) in
-      rewrite plusSymmetric J k in
-      rewrite sym $ plusAssociative k J (pred n) in
-      rewrite jPlusIsSucc (pred n) in
-      rewrite succOfPred n notJ in Refl
-    )
-    (
-      rewrite jPlusIsSucc n in
-      rewrite predOfSucc n in
-      rewrite jPlusIsSucc (pred n) in
-      rewrite succOfPred n notJ in Refl
-    )
-    m
+predCommutesToPlusSnd J         n notJ =
+  rewrite jPlusIsSucc n in
+  rewrite predOfSucc n in
+  rewrite jPlusIsSucc (pred n) in
+  rewrite succOfPred n notJ in Refl
+predCommutesToPlusSnd (ms -: m) n notJ =
+  rewrite sym $ succOfPred (ms -: m) uninhabited in
+  rewrite sym $ jPlusIsSucc (pred (ms -: m)) in
+  rewrite sym $ plusAssociative J (pred (ms -: m)) n in
+  rewrite jPlusIsSucc (plus (pred (ms -: m)) n) in
+  rewrite predOfSucc (plus (pred (ms -: m)) n) in
+  rewrite plusSymmetric J (pred (ms -: m)) in
+  rewrite sym $ plusAssociative (pred (ms -: m)) J (pred n) in
+  rewrite jPlusIsSucc (pred n) in
+  rewrite succOfPred n notJ in Refl
 
 multDashAddsAccMinusJ : (m : BiNat) -> (n : BiNat) -> (acc : BiNat) ->
   mult' m n acc = pred $ plus (mult' m n J) acc
