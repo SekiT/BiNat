@@ -71,6 +71,15 @@ plus' (ms -: m) (ns -: n) c acc = plus' ms ns (nextCarry m n c) (nextAcc m n c :
 plus : BiNat -> BiNat -> BiNat
 plus m n = plus' m n O []
 
+mult' : BiNat -> BiNat -> BiNat -> BiNat
+mult' J         added acc = pred (plus added acc)
+mult' (ms -: O) added acc = mult' ms (added -: O) acc
+mult' (ms -: I) added acc = mult' ms (added -: O) (plus added acc)
+
+||| Multiply natural numbers.
+mult : BiNat -> BiNat -> BiNat
+mult m n = mult' m n J
+
 ||| Convert an Integer to a BiNat, mapping non-positive numbers to J.
 fromInteger : Integer -> BiNat
 fromInteger i = if i <= 1 then J else fromInteger' i [] where
