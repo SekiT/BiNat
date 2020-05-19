@@ -518,6 +518,35 @@ Uninhabited (LT n J) where
   uninhabited LTLeading impossible
   uninhabited LTAppend  impossible
 
+nIsNotLessThanItself : (n : BiNat) -> Not (LT n n)
+nIsNotLessThanItself J         lt = uninhabited {t = LT J J} lt
+nIsNotLessThanItself (ns -: n) (JLT ms m) impossible
+nIsNotLessThanItself (ns -: n) (LTLeading m) impossible
+nIsNotLessThanItself (ns -: n) (LTAppend ns ns lt n n) = nIsNotLessThanItself ns lt
+
+lessThanImpliesNotEqual : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (m = n)
+lessThanImpliesNotEqual m n lt eq = nIsNotLessThanItself n $ replace {P = \z => LT z n} eq lt
+
+lessThanImpliesNotGreaterThan : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (LT n m)
+lessThanImpliesNotGreaterThan J         (ns -: n) (JLT ns n) lt = uninhabited lt
+lessThanImpliesNotGreaterThan (ms -: O) (ms -: I) (LTLeading ms) (LTAppend ms ms lt I O) = nIsNotLessThanItself ms lt
+lessThanImpliesNotGreaterThan (ms -: I) (ms -: O) (LTAppend ms ms lt I O) (LTLeading ms) = nIsNotLessThanItself ms lt
+lessThanImpliesNotGreaterThan (ms -: m) (ns -: n) (LTAppend ms ns lt1 m n) (LTAppend ns ms lt2 n m) =
+  lessThanImpliesNotGreaterThan ms ns lt1 lt2
+
+lessThanTransitive : BiNat.Properties.LT l m -> BiNat.Properties.LT m n -> BiNat.Properties.LT l n
+lessThanTransitive (JLT ms O)               (LTLeading ms)           = JLT ms I
+lessThanTransitive (JLT ms m)               (LTAppend ms ns lt m n)  = JLT ns n
+lessThanTransitive (LTLeading ls)           (LTAppend ls ns lt I n)  = LTAppend ls ns lt O n
+lessThanTransitive (LTAppend ls ms lt l O)  (LTLeading ms)           = LTAppend ls ms lt l I
+lessThanTransitive (LTAppend ls ms lt1 l m) (LTAppend ms ns lt2 m n) = LTAppend ls ns (lessThanTransitive lt1 lt2) l n
+
 data LTE : BiNat -> BiNat -> Type where
   LTEEqual : (n : BiNat) -> LTE n n
   LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
+
+lessThanEqualTransitive : BiNat.Properties.LTE l m -> BiNat.Properties.LTE m n -> BiNat.Properties.LTE l n
+lessThanEqualTransitive (LTEEqual l)          (LTEEqual l)          = LTEEqual l
+lessThanEqualTransitive (LTELessThan l m lt1) (LTEEqual m)          = LTELessThan l m lt1
+lessThanEqualTransitive (LTEEqual l)          (LTELessThan l n lt2) = LTELessThan l n lt2
+lessThanEqualTransitive (LTELessThan l m lt1) (LTELessThan m n lt2) = LTELessThan l n (lessThanTransitive lt1 lt2)
