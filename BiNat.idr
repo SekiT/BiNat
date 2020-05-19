@@ -114,7 +114,7 @@ minus' (ms -: I)      (ns -: O) I zeros acc        = minus' ms ns O (O :: zeros)
 minus' (ms -: I)      (ns -: I) O zeros acc        = minus' ms ns O (O :: zeros) acc
 minus' (ms -: I)      (ns -: I) I zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
 
-||| Subtract natural numbers. If the second number is larger than the first, return J.
+||| Subtract natural numbers. If the second number is larger than or equal to the first, return J.
 minus : BiNat -> BiNat -> BiNat
 minus m n = minus' m n O [] []
 
