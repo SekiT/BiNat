@@ -96,3 +96,24 @@ toInteger n = toInteger' n 1 0 where
   toInteger' J         added acc = added * 1 + acc
   toInteger' (ns -: O) added acc = toInteger' ns (added * 2) acc
   toInteger' (ns -: I) added acc = toInteger' ns (added * 2) (acc + added)
+
+minus' : BiNat -> BiNat -> Bit -> List Bit -> List Bit -> BiNat
+minus' J              J         O zeros (i :: acc) = foldl (-:) J acc
+minus' J              _         _ zeros acc        = J
+minus' ms             J         O zeros acc        = foldl (-:) (foldl (-:) (pred ms) zeros) acc
+minus' (ms -: I)      J         I zeros acc        = foldl (-:) (foldl (-:) (pred (ms -: O)) zeros) acc
+minus' (J -: O)       J         I zeros (i :: acc) = foldl (-:) J acc
+minus' (ms -: O -: O) J         I zeros acc        = minus' (ms -: O) J O (O :: zeros) acc
+minus' (ms -: I -: O) J         I zeros acc        = foldl (-:) (foldl (-:) (ms -: O -: O) zeros) acc
+minus' (ms -: O)      (ns -: O) O zeros acc        = minus' ms ns O (O :: zeros) acc
+minus' (ms -: O)      (ns -: O) I zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
+minus' (ms -: O)      (ns -: I) O zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
+minus' (ms -: O)      (ns -: I) I zeros acc        = minus' ms ns I (O :: zeros) acc
+minus' (ms -: I)      (ns -: O) O zeros acc        = minus' ms ns O [] (I :: zeros ++ acc)
+minus' (ms -: I)      (ns -: O) I zeros acc        = minus' ms ns O (O :: zeros) acc
+minus' (ms -: I)      (ns -: I) O zeros acc        = minus' ms ns O (O :: zeros) acc
+minus' (ms -: I)      (ns -: I) I zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
+
+||| Subtract natural numbers. If the second number is larger than the first, return J.
+minus : BiNat -> BiNat -> BiNat
+minus m n = minus' m n O [] []
