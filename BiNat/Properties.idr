@@ -104,16 +104,29 @@ plusDashAppendsAcc (ms -: m) (ns -: n) carry acc =
   rewrite plusDashAppendsAcc ms ns (nextCarry m n carry) (nextAcc m n carry :: acc) in
   rewrite plusDashAppendsAcc ms ns (nextCarry m n carry) [nextAcc m n carry] in Refl
 
-succGoesToCarry : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) -> succ' (plus' m n O []) acc = plus' m n I acc
+succGoesToCarry : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+  succ' (plus' m n O []) acc = plus' m n I acc
 succGoesToCarry J         J         acc = Refl
 succGoesToCarry (ms -: O) J         acc = Refl
-succGoesToCarry (ms -: I) J         acc = rewrite succDashAppendsAcc ms [O] in rewrite succDashAppendsAcc ms (I :: acc) in Refl
+succGoesToCarry (ms -: I) J         acc =
+  rewrite succDashAppendsAcc ms [O] in
+  rewrite succDashAppendsAcc ms (I :: acc) in Refl
 succGoesToCarry J         (ns -: O) acc = Refl
-succGoesToCarry J         (ns -: I) acc = rewrite succDashAppendsAcc ns [O] in rewrite succDashAppendsAcc ns (I :: acc) in Refl
-succGoesToCarry (ms -: O) (ns -: O) acc = rewrite plusDashAppendsAcc ms ns O [O] in rewrite plusDashAppendsAcc ms ns O (I :: acc) in Refl
-succGoesToCarry (ms -: O) (ns -: I) acc = rewrite plusDashAppendsAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
-succGoesToCarry (ms -: I) (ns -: O) acc = rewrite plusDashAppendsAcc ms ns O [I] in rewrite succGoesToCarry ms ns (O :: acc) in Refl
-succGoesToCarry (ms -: I) (ns -: I) acc = rewrite plusDashAppendsAcc ms ns I [O] in rewrite plusDashAppendsAcc ms ns I (I :: acc) in Refl
+succGoesToCarry J         (ns -: I) acc =
+  rewrite succDashAppendsAcc ns [O] in
+  rewrite succDashAppendsAcc ns (I :: acc) in Refl
+succGoesToCarry (ms -: O) (ns -: O) acc =
+  rewrite plusDashAppendsAcc ms ns O [O] in
+  rewrite plusDashAppendsAcc ms ns O (I :: acc) in Refl
+succGoesToCarry (ms -: O) (ns -: I) acc =
+  rewrite plusDashAppendsAcc ms ns O [I] in
+  rewrite succGoesToCarry ms ns (O :: acc) in Refl
+succGoesToCarry (ms -: I) (ns -: O) acc =
+  rewrite plusDashAppendsAcc ms ns O [I] in
+  rewrite succGoesToCarry ms ns (O :: acc) in Refl
+succGoesToCarry (ms -: I) (ns -: I) acc =
+  rewrite plusDashAppendsAcc ms ns I [O] in
+  rewrite plusDashAppendsAcc ms ns I (I :: acc) in Refl
 
 succDashCommutesToPlusDashSnd : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
   succ' (plus m n) acc = plus' m (succ n) O acc
