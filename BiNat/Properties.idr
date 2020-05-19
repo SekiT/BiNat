@@ -453,3 +453,23 @@ multDistributesPlusLeft l m n =
     )
     (rewrite multJIsId (plus l m) in rewrite multJIsId l in rewrite multJIsId m in Refl)
     n
+
+multSymmetric : (m : BiNat) -> (n : BiNat) -> mult m n = mult n m
+multSymmetric m n =
+  induction
+    (\k => mult k n = mult n k)
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite multDistributesPlusLeft k J n in
+      rewrite multDistributesPlusRight n k J in
+      rewrite plusJIsSucc n in
+      rewrite predOfSucc n in
+      rewrite multJIsId n in
+      rewrite pk in Refl
+    )
+    (
+      rewrite plusJIsSucc n in
+      rewrite predOfSucc n in
+      rewrite multJIsId n in Refl
+    )
+    m
