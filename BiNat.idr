@@ -88,3 +88,11 @@ fromInteger i = if i <= 1 then J else fromInteger' i [] where
     fromInteger'
       (assert_smaller i (assert_total (div i 2)))
       ((if assert_total (mod i 2) == 0 then O else I) :: acc)
+
+||| Convert a BiNat to an Integer.
+toInteger : BiNat -> Integer
+toInteger n = toInteger' n 1 0 where
+  toInteger' : BiNat -> Integer -> Integer -> Integer
+  toInteger' J         added acc = added * 1 + acc
+  toInteger' (ns -: O) added acc = toInteger' ns (added * 2) acc
+  toInteger' (ns -: I) added acc = toInteger' ns (added * 2) (acc + added)
