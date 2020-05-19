@@ -550,3 +550,9 @@ lessThanEqualTransitive (LTEEqual l)          (LTEEqual l)          = LTEEqual l
 lessThanEqualTransitive (LTELessThan l m lt1) (LTEEqual m)          = LTELessThan l m lt1
 lessThanEqualTransitive (LTEEqual l)          (LTELessThan l n lt2) = LTELessThan l n lt2
 lessThanEqualTransitive (LTELessThan l m lt1) (LTELessThan m n lt2) = LTELessThan l n (lessThanTransitive lt1 lt2)
+
+lessThanEqualAntiSymmetric : (m, n : BiNat) -> BiNat.Properties.LTE m n -> BiNat.Properties.LTE n m -> m = n
+lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTEEqual m)          = Refl
+lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTELessThan m m lt2) = absurd $ nIsNotLessThanItself m lt2
+lessThanEqualAntiSymmetric m m (LTELessThan m m lt1) (LTEEqual m)          = absurd $ nIsNotLessThanItself m lt1
+lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
