@@ -473,3 +473,23 @@ multSymmetric m n =
       rewrite multJIsId n in Refl
     )
     m
+
+multAssociative : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
+  mult l (mult m n) = mult (mult l m) n
+multAssociative l m n =
+  induction
+    (\k => mult k (mult m n) = mult (mult k m) n)
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite multDistributesPlusLeft k J (mult m n) in
+      rewrite jMultIsId (mult m n) in
+      rewrite multDistributesPlusLeft k J m in
+      rewrite jMultIsId m in
+      rewrite multDistributesPlusLeft (mult k m) m n in
+      rewrite pk in Refl
+    )
+    (
+      rewrite jMultIsId (mult m n) in
+      rewrite jMultIsId m in Refl
+    )
+    l
