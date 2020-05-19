@@ -423,6 +423,14 @@ multJIsId (ns -: I) =
   rewrite predOfDoubled (succ ns) (succIsNotJ ns) in
   rewrite predOfSucc ns in Refl
 
+jMultIsId : (n : BiNat) -> mult J n = n
+jMultIsId J = Refl
+jMultIsId (ns -: O) = Refl
+jMultIsId (ns -: I) =
+  rewrite succDashAppendsAcc ns [O] in
+  rewrite predOfDoubled (succ ns) (succIsNotJ ns) in
+  rewrite predOfSucc ns in Refl
+
 multDistributesPlusLeft : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
   mult (plus l m) n = plus (mult l n) (mult m n)
 multDistributesPlusLeft l m n =
