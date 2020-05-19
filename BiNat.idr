@@ -117,3 +117,8 @@ minus' (ms -: I)      (ns -: I) I zeros acc        = minus' ms ns I [] (I :: zer
 ||| Subtract natural numbers. If the second number is larger than the first, return J.
 minus : BiNat -> BiNat -> BiNat
 minus m n = minus' m n O [] []
+
+Num BiNat where
+  (+) = plus
+  (*) = mult
+  fromInteger = BiNat.fromInteger
