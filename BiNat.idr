@@ -93,7 +93,7 @@ fromInteger i = if i <= 1 then J else fromInteger' i [] where
 toInteger : BiNat -> Integer
 toInteger n = toInteger' n 1 0 where
   toInteger' : BiNat -> Integer -> Integer -> Integer
-  toInteger' J         added acc = added * 1 + acc
+  toInteger' J         added acc = added + acc
   toInteger' (ns -: O) added acc = toInteger' ns (added * 2) acc
   toInteger' (ns -: I) added acc = toInteger' ns (added * 2) (acc + added)
 
