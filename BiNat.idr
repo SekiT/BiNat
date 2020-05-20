@@ -102,6 +102,7 @@ minus' J              J         O zeros (i :: acc) = foldl (-:) J acc
 minus' J              _         _ zeros acc        = J
 minus' ms             J         O zeros acc        = foldl (-:) (foldl (-:) (pred ms) zeros) acc
 minus' (ms -: I)      J         I zeros acc        = foldl (-:) (foldl (-:) (pred (ms -: O)) zeros) acc
+minus' (J -: O)       J         I zeros []         = J -- not happening practically, but define for totality
 minus' (J -: O)       J         I zeros (i :: acc) = foldl (-:) J acc
 minus' (ms -: O -: O) J         I zeros acc        = minus' (ms -: O) J O (O :: zeros) acc
 minus' (ms -: I -: O) J         I zeros acc        = foldl (-:) (foldl (-:) (ms -: O -: O) zeros) acc
