@@ -572,3 +572,61 @@ predIsLessThan (ns -: O -: O) _ =
   LTAppend (pred (ns -: O)) (ns -: O) (predIsLessThan (ns -: O) (JLT ns O)) I O
 predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns) I O
 predIsLessThan (ns -: I)      _ = LTLeading ns
+
+minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+  minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
+minusLast00 J         J         tail = Refl
+minusLast00 J         (ns -: O) tail = Refl
+minusLast00 J         (ns -: I) tail = Refl
+minusLast00 (ms -: O) J         tail = Refl
+minusLast00 (ms -: I) J         tail = Refl
+minusLast00 (ms -: O) (ns -: O) tail = Refl
+minusLast00 (ms -: O) (ns -: I) tail = Refl
+minusLast00 (ms -: I) (ns -: O) tail = Refl
+minusLast00 (ms -: I) (ns -: I) tail = Refl
+
+minusLast10 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+  minus' (ms -: I) (ns -: O) tail = minus' ms ns (I :: tail)
+minusLast10 J         J         tail = Refl
+minusLast10 J         (ns -: O) tail = Refl
+minusLast10 J         (ns -: I) tail = Refl
+minusLast10 (ms -: O) J         tail = Refl
+minusLast10 (ms -: I) J         tail = Refl
+minusLast10 (ms -: O) (ns -: O) tail = Refl
+minusLast10 (ms -: O) (ns -: I) tail = Refl
+minusLast10 (ms -: I) (ns -: O) tail = Refl
+minusLast10 (ms -: I) (ns -: I) tail = Refl
+
+minusLast11 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+  minus' (ms -: I) (ns -: I) tail = minus' ms ns (O :: tail)
+minusLast11 J         J         tail = Refl
+minusLast11 J         (ns -: O) tail = Refl
+minusLast11 J         (ns -: I) tail = Refl
+minusLast11 (ms -: O) J         tail = Refl
+minusLast11 (ms -: I) J         tail = Refl
+minusLast11 (ms -: O) (ns -: O) tail = Refl
+minusLast11 (ms -: O) (ns -: I) tail = Refl
+minusLast11 (ms -: I) (ns -: O) tail = Refl
+minusLast11 (ms -: I) (ns -: I) tail = Refl
+
+minusLast01 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) -> Not (ms = J) ->
+  minus' (ms -: O) (ns -: I) tail = minus' (pred ms) ns (I :: tail)
+minusLast01 J         ns         tail notJ = absurd (notJ Refl)
+minusLast01 (ms -: O) J          tail _    = Refl
+minusLast01 (ms -: I) J          tail _    = Refl
+minusLast01 (ms -: O) (ns -: O)  tail _    = Refl
+minusLast01 (ms -: O) (ns -: I)  tail _    = Refl
+minusLast01 (ms -: I) (ns -: O)  tail _    = Refl
+minusLast01 (ms -: I) (ns -: I)  tail _    = Refl
+
+minusLast0J : (ms : BiNat) -> (tail : List Bit) -> Not (ms = J) ->
+  minus' (ms -: O) J tail = foldl (-:) (pred ms -: I) tail
+minusLast0J J         tail notJ = absurd (notJ Refl)
+minusLast0J (ms -: O) tail _    = Refl
+minusLast0J (ms -: I) tail _    = Refl
+
+minusLast1J : (ms : BiNat) -> (tail : List Bit) -> Not (ms = J) ->
+  minus' (ms -: I) J tail = foldl (-:) (ms -: O) tail
+minusLast1J J         tail notJ = absurd (notJ Refl)
+minusLast1J (ms -: O) tail _    = Refl
+minusLast1J (ms -: I) tail _    = Refl
