@@ -97,27 +97,26 @@ toInteger n = toInteger' n 1 0 where
   toInteger' (ns -: O) added acc = toInteger' ns (added * 2) acc
   toInteger' (ns -: I) added acc = toInteger' ns (added * 2) (acc + added)
 
-minus' : BiNat -> BiNat -> Bit -> List Bit -> List Bit -> BiNat
-minus' J              J         O zeros (i :: acc) = foldl (-:) J acc
-minus' J              _         _ zeros acc        = J
-minus' ms             J         O zeros acc        = foldl (-:) (foldl (-:) (pred ms) zeros) acc
-minus' (ms -: I)      J         I zeros acc        = foldl (-:) (foldl (-:) (pred (ms -: O)) zeros) acc
-minus' (J -: O)       J         I zeros []         = J -- not happening practically, but define for totality
-minus' (J -: O)       J         I zeros (i :: acc) = foldl (-:) J acc
-minus' (ms -: O -: O) J         I zeros acc        = minus' (ms -: O) J O (O :: zeros) acc
-minus' (ms -: I -: O) J         I zeros acc        = foldl (-:) (foldl (-:) (ms -: O -: O) zeros) acc
-minus' (ms -: O)      (ns -: O) O zeros acc        = minus' ms ns O (O :: zeros) acc
-minus' (ms -: O)      (ns -: O) I zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
-minus' (ms -: O)      (ns -: I) O zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
-minus' (ms -: O)      (ns -: I) I zeros acc        = minus' ms ns I (O :: zeros) acc
-minus' (ms -: I)      (ns -: O) O zeros acc        = minus' ms ns O [] (I :: zeros ++ acc)
-minus' (ms -: I)      (ns -: O) I zeros acc        = minus' ms ns O (O :: zeros) acc
-minus' (ms -: I)      (ns -: I) O zeros acc        = minus' ms ns O (O :: zeros) acc
-minus' (ms -: I)      (ns -: I) I zeros acc        = minus' ms ns I [] (I :: zeros ++ acc)
+tailToBiNat : List Bit -> BiNat
+tailToBiNat []          = J
+tailToBiNat (O :: tail) = tailToBiNat tail
+tailToBiNat (I :: tail) = foldl (-:) J tail
+
+minus' : BiNat -> BiNat -> List Bit -> BiNat
+minus' J          J         tail = tailToBiNat tail
+minus' J          ns        tail = J
+minus' (J -: O)   J         tail = foldl (-:) J tail
+minus' (ms -: O)  J         tail = foldl (-:) (pred ms -: I) tail
+minus' (ms -: I)  J         tail = foldl (-:) (ms -: O) tail
+minus' (ms -: O)  (ns -: O) tail = minus' ms ns (O :: tail)
+minus' (J -: O)   (ns -: I) tail = J
+minus' (ms -: O)  (ns -: I) tail = minus' (pred ms) ns (I :: tail)
+minus' (ms -: I)  (ns -: O) tail = minus' ms ns (I :: tail)
+minus' (ms -: I)  (ns -: I) tail = minus' ms ns (O :: tail)
 
 ||| Subtract natural numbers. If the second number is larger than or equal to the first, return J.
 minus : BiNat -> BiNat -> BiNat
-minus m n = minus' m n O [] []
+minus m n = minus' m n []
 
 Num BiNat where
   (+) = plus
