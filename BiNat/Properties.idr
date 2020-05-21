@@ -556,3 +556,19 @@ lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTEEqual m)          = Ref
 lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTELessThan m m lt2) = absurd $ nIsNotLessThanItself m lt2
 lessThanEqualAntiSymmetric m m (LTELessThan m m lt1) (LTEEqual m)          = absurd $ nIsNotLessThanItself m lt1
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
+
+lessThanSucc : (n : BiNat) -> LT n (succ n)
+lessThanSucc J         = JLT J O
+lessThanSucc (ns -: O) = LTLeading ns
+lessThanSucc (ns -: I) =
+  replace {P = \z => LT (ns -: I) z} (sym $ succDashAppendsAcc ns [O]) $
+  LTAppend ns (succ ns) (lessThanSucc ns) I O
+
+predIsLessThan : (n : BiNat) -> LT J n -> LT (pred n) n
+predIsLessThan J _ impossible
+predIsLessThan (J -: O)       _ = JLT J O
+predIsLessThan (ns -: O -: O) _ =
+  replace {P = \z => LT z (ns -: O -: O)} (sym $ predDashAppendsAcc (ns -: O) [I]) $
+  LTAppend (pred (ns -: O)) (ns -: O) (predIsLessThan (ns -: O) (JLT ns O)) I O
+predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns) I O
+predIsLessThan (ns -: I)      _ = LTLeading ns
