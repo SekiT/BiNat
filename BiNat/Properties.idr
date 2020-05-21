@@ -719,3 +719,60 @@ minusDashAppendsTail (J -: I)       (ns -: I)      (LTAppend ns J lt I I) tail i
 minusDashAppendsTail (ms -: m -: I) (ns -: I)      (LTAppend ns (ms -: m) lt I I) tail =
   rewrite minusDashAppendsTail (ms -: m) ns lt (O :: tail) in
   rewrite minusDashAppendsTail (ms -: m) ns lt [O] in Refl
+
+lessThanPlus : (m : BiNat) -> (n : BiNat) -> LT m (plus n m)
+lessThanPlus m n =
+  induction
+    (\k => LT m (plus k m))
+    (\k, pk =>
+      replace {P = \z => LT m (plus z m)} (jPlusIsSucc k) $
+      replace {P = \z => LT m z} (plusAssociative J k m) $
+      replace {P = \z => LT m z} (sym $ jPlusIsSucc (plus k m)) $
+      lessThanTransitive pk (lessThanSucc (plus k m))
+    )
+    (replace (sym $ jPlusIsSucc m) (lessThanSucc m))
+    n
+
+minusOfPlus : (m : BiNat) -> (n : BiNat) -> minus (plus m n) n = m
+minusOfPlus J              J              = Refl
+minusOfPlus J              (J -: O)       = Refl
+minusOfPlus J              (ns -: O -: O) = minusOfItSelf ns O [I]
+minusOfPlus J              (ns -: I -: O) = minusOfItSelf ns I [I]
+minusOfPlus J              (J -: I)       = Refl
+minusOfPlus J              (ns -: O -: I) = minusOfItSelf ns O [I]
+minusOfPlus J              (ns -: I -: I) =
+  rewrite succDashAppendsAcc ns [O, O] in
+  rewrite predOfDoubled (succ ns) (succIsNotJ ns) in
+  rewrite predOfSucc ns in
+  rewrite minusOfItSelf ns I [I] in Refl
+minusOfPlus (J -: O)       J              = Refl
+minusOfPlus (ms -: O -: O) J              = Refl
+minusOfPlus (ms -: I -: O) J              = Refl
+minusOfPlus (J -: I)       J              = Refl
+minusOfPlus (ms -: O -: I) J              = Refl
+minusOfPlus (ms -: I -: I) J              =
+  rewrite succDashAppendsAcc ms [O, O] in
+  rewrite predOfDoubled (succ ms) (succIsNotJ ms) in
+  rewrite predOfSucc ms in Refl
+minusOfPlus (ms -: O)      (ns -: O)      =
+  rewrite plusDashAppendsAcc ms ns O [O] in
+  rewrite minusLast00 (plus ms ns) ns [] in
+  rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [O] in
+  rewrite minusOfPlus ms ns in Refl
+minusOfPlus (ms -: O)      (ns -: I)      =
+  rewrite plusDashAppendsAcc ms ns O [I] in
+  rewrite minusLast11 (plus ms ns) ns [] in
+  rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [O] in
+  rewrite minusOfPlus ms ns in Refl
+minusOfPlus (ms -: I)      (ns -: O)      =
+  rewrite plusDashAppendsAcc ms ns O [I] in
+  rewrite minusLast10 (plus ms ns) ns [] in
+  rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [I] in
+  rewrite minusOfPlus ms ns in Refl
+minusOfPlus (ms -: I)      (ns -: I)      =
+  rewrite plusDashAppendsAcc ms ns I [O] in
+  rewrite sym $ succGoesToCarry ms ns [] in
+  rewrite minusLast01 (succ (plus ms ns)) ns [] (succIsNotJ (plus ms ns)) in
+  rewrite predOfSucc (plus ms ns) in
+  rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [I] in
+  rewrite minusOfPlus ms ns in Refl
