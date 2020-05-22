@@ -637,6 +637,32 @@ lessThanImpliesSuccLTE (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
       rewrite eq in LTELessThan (ns -: O) (ns -: I) (LTLeading ns)
     Right lt2 =>
       LTELessThan (succ ms -: O) (ns -: I) (LTAppend (succ ms) ns lt2 O I)
+
+succKeepsLessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LT (succ m) (succ n)
+succKeepsLessThan m         J              lt impossible
+succKeepsLessThan J         (J -: O)       lt = LTLeading J
+succKeepsLessThan J         (ns -: n -: O) lt = LTAppend J (ns -: n) (JLT ns n) O I
+succKeepsLessThan J         (J -: I)       lt = LTAppend J (J -: O) (JLT J O) O O
+succKeepsLessThan J         (ns -: n -: I) lt =
+  rewrite succDashAppendsAcc (ns -: n) [O] in
+  LTAppend J (succ (ns -: n)) (lessThanTransitive (JLT ns n) (lessThanSucc (ns -: n))) O O
+succKeepsLessThan (ms -: O) (ns -: O)      (LTAppend ms ns lt O O) = LTAppend ms ns lt I I
+succKeepsLessThan (ms -: O) (ms -: I)      (LTLeading ms) =
+  rewrite succDashAppendsAcc ms [O] in
+  LTAppend ms (succ ms) (lessThanSucc ms) I O
+succKeepsLessThan (ms -: O) (ns -: I)      (LTAppend ms ns lt O I) =
+  rewrite succDashAppendsAcc ns [O] in
+  LTAppend ms (succ ns) (lessThanTransitive lt (lessThanSucc ns)) I O
+succKeepsLessThan (ms -: I) (ns -: O)      (LTAppend ms ns lt I O) =
+  rewrite succDashAppendsAcc ms [O] in
+  case decomposeLTE $ lessThanImpliesSuccLTE ms ns lt of
+    Left eq   => rewrite eq in LTLeading ns
+    Right lt2 => LTAppend (succ ms) ns lt2 O I
+succKeepsLessThan (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
+  rewrite succDashAppendsAcc ms [O] in
+  rewrite succDashAppendsAcc ns [O] in
+  LTAppend (succ ms) (succ ns) (succKeepsLessThan ms ns lt) O O
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
