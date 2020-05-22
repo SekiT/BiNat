@@ -686,6 +686,14 @@ lessThanImpliesLTEOfPreds (ms -: m) ns             lt =
     (LTELessThan (pred (ms -: m)) (ms -: m) (predIsLessThan (ms -: m) (JLT ms m)))
     (lessThanImpliesLTEPred (ms -: m) ns lt)
 
+predRecoversLT : (m : BiNat) -> (n : BiNat) -> LT (pred m) (pred n) -> LT m n
+predRecoversLT m         J         lt impossible
+predRecoversLT J         (ns -: n) lt = JLT ns n
+predRecoversLT (ms -: m) (ns -: n) lt =
+  rewrite sym $ succOfPred (ms -: m) uninhabited in
+  rewrite sym $ succOfPred (ns -: n) uninhabited in
+  succKeepsLessThan (pred (ms -: m)) (pred (ns -: n)) lt
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
