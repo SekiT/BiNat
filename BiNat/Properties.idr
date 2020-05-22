@@ -608,6 +608,35 @@ lessThanImpliesLTEPred (ms -: I) (ns -: n -: O) (LTAppend ms (ns -: n) lt I O) =
       LTELessThan (ms -: I) (pred (ns -: n) -: I) (LTAppend ms (pred (ns -: n)) lt2 I I)
 lessThanImpliesLTEPred (ms -: I) (ns -: I) (LTAppend ms ns lt I I) =
   LTELessThan (ms -: I) (ns -: O) (LTAppend ms ns lt I O)
+
+lessThanImpliesSuccLTE : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE (succ m) n
+lessThanImpliesSuccLTE m         J lt impossible
+lessThanImpliesSuccLTE J         (J -: O)       (JLT J O) = LTEEqual (J -: O)
+lessThanImpliesSuccLTE J         (J -: I)       (JLT J I) =
+  LTELessThan (J -: O) (J -: I) (LTLeading J)
+lessThanImpliesSuccLTE J         (ns -: n -: O) lt        =
+  LTELessThan (J -: O) (ns -: n -: O) (LTAppend J (ns -: n) (JLT ns n) O O)
+lessThanImpliesSuccLTE J         (ns -: n -: I) lt        =
+  LTELessThan (J -: O) (ns -: n -: I) (LTAppend J (ns -: n) (JLT ns n) O I)
+lessThanImpliesSuccLTE (ms -: O) (ns -: O)      (LTAppend ms ns lt O O) =
+  LTELessThan (ms -: I) (ns -: O) (LTAppend ms ns lt I O)
+lessThanImpliesSuccLTE (ms -: O) (ms -: I)      (LTLeading ms) = LTEEqual (ms -: I)
+lessThanImpliesSuccLTE (ms -: O) (ns -: I)      (LTAppend ms ns lt O I) =
+  LTELessThan (ms -: I) (ns -: I) (LTAppend ms ns lt I I)
+lessThanImpliesSuccLTE (ms -: I) (ns -: O)      (LTAppend ms ns lt I O) =
+  rewrite succDashAppendsAcc ms [O] in
+  case decomposeLTE $ lessThanImpliesSuccLTE ms ns lt of
+    Left eq =>
+      rewrite eq in LTEEqual (ns -: O)
+    Right lt2 =>
+      LTELessThan (succ ms -: O) (ns -: O) (LTAppend (succ ms) ns lt2 O O)
+lessThanImpliesSuccLTE (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
+  rewrite succDashAppendsAcc ms [O] in
+  case decomposeLTE $ lessThanImpliesSuccLTE ms ns lt of
+    Left eq =>
+      rewrite eq in LTELessThan (ns -: O) (ns -: I) (LTLeading ns)
+    Right lt2 =>
+      LTELessThan (succ ms -: O) (ns -: I) (LTAppend (succ ms) ns lt2 O I)
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
