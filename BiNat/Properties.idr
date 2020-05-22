@@ -663,6 +663,18 @@ succKeepsLessThan (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
   rewrite succDashAppendsAcc ns [O] in
   LTAppend (succ ms) (succ ns) (succKeepsLessThan ms ns lt) O O
 
+succsRecoversLessThan : (m : BiNat) -> (n : BiNat) -> LT (succ m) (succ n) -> LT m n
+succsRecoversLessThan m n lt =
+  case
+    decomposeLTE $
+    replace {P = \z => LTE (succ m) z} (predOfSucc n) $
+    lessThanImpliesLTEPred (succ m) (succ n) lt
+  of
+    Left eq =>
+      rewrite sym eq in lessThanSucc m
+    Right lt2 =>
+      lessThanTransitive (lessThanSucc m) lt2
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
