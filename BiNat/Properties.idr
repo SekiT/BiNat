@@ -776,3 +776,26 @@ minusOfPlus (ms -: I)      (ns -: I)      =
   rewrite predOfSucc (plus ms ns) in
   rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [I] in
   rewrite minusOfPlus ms ns in Refl
+
+plusOfMinus : (m : BiNat) -> (n : BiNat) -> LT n m -> plus (minus m n) n = m
+plusOfMinus m n =
+  induction
+    (\k => LT n k -> plus (minus k n) n = k)
+    (\k, pk, lt =>
+      case decomposeLTE $ lessThanImpliesLTEPred n (succ k) lt of
+        Left eq =>
+          rewrite eq in
+          rewrite predOfSucc k in
+          rewrite sym $ jPlusIsSucc k in
+          rewrite minusOfPlus J k in Refl
+        Right lt2 =>
+          let pk' = pk (replace {P = \z => LT n z} (predOfSucc k) lt2) in
+          replace {P = \z => plus (minus (succ z) n) n = succ k} pk' $
+          rewrite sym $ jPlusIsSucc (plus (minus k n) n) in
+          rewrite plusAssociative J (minus k n) n in
+          rewrite minusOfPlus (plus J (minus k n)) n in
+          rewrite sym $ plusAssociative J (minus k n) n in
+          rewrite pk' in jPlusIsSucc k
+    )
+    (\lt => absurd (uninhabited lt))
+    m
