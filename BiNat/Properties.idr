@@ -675,6 +675,17 @@ succsRecoversLessThan m n lt =
     Right lt2 =>
       lessThanTransitive (lessThanSucc m) lt2
 
+lessThanImpliesLTEOfPreds : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE (pred m) (pred n)
+lessThanImpliesLTEOfPreds J         (J -: O)       lt = LTEEqual J
+lessThanImpliesLTEOfPreds J         (ns -: n -: O) lt =
+  rewrite predDashAppendsAcc (ns -: n) [I] in
+  LTELessThan J (pred (ns -: n) -: I) (JLT (pred (ns -: n)) I)
+lessThanImpliesLTEOfPreds J         (ns -: I)      lt = LTELessThan J (ns -: O) (JLT ns O)
+lessThanImpliesLTEOfPreds (ms -: m) ns             lt =
+  lessThanEqualTransitive
+    (LTELessThan (pred (ms -: m)) (ms -: m) (predIsLessThan (ms -: m) (JLT ms m)))
+    (lessThanImpliesLTEPred (ms -: m) ns lt)
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
