@@ -631,7 +631,8 @@ minusLast1J J         tail notJ = absurd (notJ Refl)
 minusLast1J (ms -: O) tail _    = Refl
 minusLast1J (ms -: I) tail _    = Refl
 
-minusOfItSelf : (ns : BiNat) -> (n : Bit) -> (tail : List Bit) -> minus' (ns -: n) (ns -: n) tail = tailToBiNat tail
+minusOfItSelf : (ns : BiNat) -> (n : Bit) -> (tail : List Bit) ->
+  minus' (ns -: n) (ns -: n) tail = tailToBiNat tail
 minusOfItSelf J         O tail = Refl
 minusOfItSelf (ns -: O) O tail = rewrite minusOfItSelf ns O (O :: tail) in Refl
 minusOfItSelf (ns -: I) O tail = rewrite minusOfItSelf ns I (O :: tail) in Refl
