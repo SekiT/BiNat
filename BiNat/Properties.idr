@@ -694,6 +694,19 @@ predRecoversLT (ms -: m) (ns -: n) lt =
   rewrite sym $ succOfPred (ns -: n) uninhabited in
   succKeepsLessThan (pred (ms -: m)) (pred (ns -: n)) lt
 
+lessThanPlus : (m : BiNat) -> (n : BiNat) -> LT m (plus n m)
+lessThanPlus m n =
+  induction
+    (\k => LT m (plus k m))
+    (\k, pk =>
+      replace {P = \z => LT m (plus z m)} (jPlusIsSucc k) $
+      replace {P = \z => LT m z} (plusAssociative J k m) $
+      replace {P = \z => LT m z} (sym $ jPlusIsSucc (plus k m)) $
+      lessThanTransitive pk (lessThanSucc (plus k m))
+    )
+    (replace (sym $ jPlusIsSucc m) (lessThanSucc m))
+    n
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
@@ -805,19 +818,6 @@ minusDashAppendsTail (J -: I)       (ns -: I)      (LTAppend ns J lt I I) tail i
 minusDashAppendsTail (ms -: m -: I) (ns -: I)      (LTAppend ns (ms -: m) lt I I) tail =
   rewrite minusDashAppendsTail (ms -: m) ns lt (O :: tail) in
   rewrite minusDashAppendsTail (ms -: m) ns lt [O] in Refl
-
-lessThanPlus : (m : BiNat) -> (n : BiNat) -> LT m (plus n m)
-lessThanPlus m n =
-  induction
-    (\k => LT m (plus k m))
-    (\k, pk =>
-      replace {P = \z => LT m (plus z m)} (jPlusIsSucc k) $
-      replace {P = \z => LT m z} (plusAssociative J k m) $
-      replace {P = \z => LT m z} (sym $ jPlusIsSucc (plus k m)) $
-      lessThanTransitive pk (lessThanSucc (plus k m))
-    )
-    (replace (sym $ jPlusIsSucc m) (lessThanSucc m))
-    n
 
 minusOfPlus : (m : BiNat) -> (n : BiNat) -> minus (plus m n) n = m
 minusOfPlus J              J              = Refl
