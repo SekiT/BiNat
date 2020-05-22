@@ -573,6 +573,41 @@ predIsLessThan (ns -: O -: O) _ =
 predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns) I O
 predIsLessThan (ns -: I)      _ = LTLeading ns
 
+decomposeLTE : BiNat.Properties.LTE m n -> Either (m = n) (LT m n)
+decomposeLTE (LTEEqual m)         = Left Refl
+decomposeLTE (LTELessThan m n lt) = Right lt
+
+lessThanImpliesLTEPred : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m (pred n)
+lessThanImpliesLTEPred m J lt impossible
+lessThanImpliesLTEPred J (J -: O)       _ = LTEEqual J
+lessThanImpliesLTEPred J (ns -: O -: O) _ =
+  replace {P = \z => LTE J z} (sym $ predDashAppendsAcc (ns -: O) [I]) $
+  LTELessThan J (pred (ns -: O) -: I) (JLT (pred (ns -: O)) I)
+lessThanImpliesLTEPred J (ns -: I -: O) _ = LTELessThan J (ns -: O -: I) (JLT (ns -: O) I)
+lessThanImpliesLTEPred J (ns -: I)      _ = LTELessThan J (ns -: O) (JLT ns O)
+lessThanImpliesLTEPred (ms -: O) (ns -: O) (LTAppend ms ns lt O O) =
+  case ns of
+    J          => absurd (uninhabited lt)
+    (ns2 -: n) =>
+      replace {P = \z => LTE (ms -: O) z} (sym $ predDashAppendsAcc (ns2 -: n) [I]) $
+      case decomposeLTE $ lessThanImpliesLTEPred ms (ns2 -: n) lt of
+        Left eq =>
+          replace {P = \z => LTE (ms -: O) (z -: I)} eq (LTELessThan (ms -: O) (ms -: I) (LTLeading ms))
+        Right lt2 =>
+          LTELessThan (ms -: O) (pred (ns2 -: n) -: I) (LTAppend ms (pred (ns2 -: n)) lt2 O I)
+lessThanImpliesLTEPred (ms -: O) (ms -: I) (LTLeading ms) = LTEEqual (ms -: O)
+lessThanImpliesLTEPred (ms -: O) (ns -: I) (LTAppend ms ns lt O I) =
+  LTELessThan (ms -: O) (ns -: O) (LTAppend ms ns lt O O)
+lessThanImpliesLTEPred (ms -: I) (J -: O) (LTAppend ms J lt I O) impossible
+lessThanImpliesLTEPred (ms -: I) (ns -: n -: O) (LTAppend ms (ns -: n) lt I O) =
+  replace {P = \z => LTE (ms -: I) z} (sym $ predDashAppendsAcc (ns -: n) [I]) $
+  case decomposeLTE $ lessThanImpliesLTEPred ms (ns -: n) lt of
+    Left eq   =>
+      replace {P = \z => LTE (ms -: I) (z -: I)} eq (LTEEqual (ms -: I))
+    Right lt2 =>
+      LTELessThan (ms -: I) (pred (ns -: n) -: I) (LTAppend ms (pred (ns -: n)) lt2 I I)
+lessThanImpliesLTEPred (ms -: I) (ns -: I) (LTAppend ms ns lt I I) =
+  LTELessThan (ms -: I) (ns -: O) (LTAppend ms ns lt I O)
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
@@ -639,42 +674,6 @@ minusOfItSelf (ns -: I) O tail = rewrite minusOfItSelf ns I (O :: tail) in Refl
 minusOfItSelf J         I tail = Refl
 minusOfItSelf (ns -: O) I tail = rewrite minusOfItSelf ns O (O :: tail) in Refl
 minusOfItSelf (ns -: I) I tail = rewrite minusOfItSelf ns I (O :: tail) in Refl
-
-decomposeLTE : BiNat.Properties.LTE m n -> Either (m = n) (LT m n)
-decomposeLTE (LTEEqual m)         = Left Refl
-decomposeLTE (LTELessThan m n lt) = Right lt
-
-lessThanImpliesLTEPred : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m (pred n)
-lessThanImpliesLTEPred m J lt impossible
-lessThanImpliesLTEPred J (J -: O)       _ = LTEEqual J
-lessThanImpliesLTEPred J (ns -: O -: O) _ =
-  replace {P = \z => LTE J z} (sym $ predDashAppendsAcc (ns -: O) [I]) $
-  LTELessThan J (pred (ns -: O) -: I) (JLT (pred (ns -: O)) I)
-lessThanImpliesLTEPred J (ns -: I -: O) _ = LTELessThan J (ns -: O -: I) (JLT (ns -: O) I)
-lessThanImpliesLTEPred J (ns -: I)      _ = LTELessThan J (ns -: O) (JLT ns O)
-lessThanImpliesLTEPred (ms -: O) (ns -: O) (LTAppend ms ns lt O O) =
-  case ns of
-    J          => absurd (uninhabited lt)
-    (ns2 -: n) =>
-      replace {P = \z => LTE (ms -: O) z} (sym $ predDashAppendsAcc (ns2 -: n) [I]) $
-      case decomposeLTE $ lessThanImpliesLTEPred ms (ns2 -: n) lt of
-        Left eq =>
-          replace {P = \z => LTE (ms -: O) (z -: I)} eq (LTELessThan (ms -: O) (ms -: I) (LTLeading ms))
-        Right lt2 =>
-          LTELessThan (ms -: O) (pred (ns2 -: n) -: I) (LTAppend ms (pred (ns2 -: n)) lt2 O I)
-lessThanImpliesLTEPred (ms -: O) (ms -: I) (LTLeading ms) = LTEEqual (ms -: O)
-lessThanImpliesLTEPred (ms -: O) (ns -: I) (LTAppend ms ns lt O I) =
-  LTELessThan (ms -: O) (ns -: O) (LTAppend ms ns lt O O)
-lessThanImpliesLTEPred (ms -: I) (J -: O) (LTAppend ms J lt I O) impossible
-lessThanImpliesLTEPred (ms -: I) (ns -: n -: O) (LTAppend ms (ns -: n) lt I O) =
-  replace {P = \z => LTE (ms -: I) z} (sym $ predDashAppendsAcc (ns -: n) [I]) $
-  case decomposeLTE $ lessThanImpliesLTEPred ms (ns -: n) lt of
-    Left eq   =>
-      replace {P = \z => LTE (ms -: I) (z -: I)} eq (LTEEqual (ms -: I))
-    Right lt2 =>
-      LTELessThan (ms -: I) (pred (ns -: n) -: I) (LTAppend ms (pred (ns -: n)) lt2 I I)
-lessThanImpliesLTEPred (ms -: I) (ns -: I) (LTAppend ms ns lt I I) =
-  LTELessThan (ms -: I) (ns -: O) (LTAppend ms ns lt I O)
 
 minusDashAppendsTail : (m : BiNat) -> (n : BiNat) -> LT n m -> (tail : List Bit) ->
   minus' m n tail = foldl (-:) (minus' m n []) tail
