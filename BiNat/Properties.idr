@@ -721,9 +721,7 @@ completeInduction prop trans n =
     (\k, pk, m, lt =>
       case decomposeLTE $ lessThanImpliesLTEPred m (succ k) lt of
         Left eq =>
-          rewrite eq in
-          rewrite predOfSucc k in
-          trans k pk
+          rewrite eq in rewrite predOfSucc k in trans k pk
         Right lt2 =>
           pk m (replace (predOfSucc k) lt2)
     )
