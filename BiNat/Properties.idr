@@ -557,6 +557,10 @@ lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTELessThan m m lt2) = abs
 lessThanEqualAntiSymmetric m m (LTELessThan m m lt1) (LTEEqual m)          = absurd $ nIsNotLessThanItself m lt1
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
+lessThanAppended : (n : BiNat) -> (b : Bit) -> LT n (n -: b)
+lessThanAppended J         b = JLT J b
+lessThanAppended (ns -: n) b = LTAppend ns (ns -: n) (lessThanAppended ns n) n b
+
 lessThanSucc : (n : BiNat) -> LT n (succ n)
 lessThanSucc J         = JLT J O
 lessThanSucc (ns -: O) = LTLeading ns
