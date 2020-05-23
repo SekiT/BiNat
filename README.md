@@ -15,6 +15,7 @@ My exercise in [Idris](https://www.idris-lang.org/), reimplementing natural numb
 - Costs O(log n) for defining a natural number n
 - Induction through function `BiNat.Properties.induction`
   - Note that n is not structurally smaller than n + 1
+  - There is also complete induction `BiNat.Properties.completeInduction`
 
 ## Development
 

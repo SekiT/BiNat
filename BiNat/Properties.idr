@@ -711,6 +711,25 @@ lessThanPlus m n =
     (replace (sym $ jPlusIsSucc m) (lessThanSucc m))
     n
 
+completeInduction :
+  (P : BiNat -> Type) ->
+  ((k : BiNat) -> ((m : BiNat) -> LT m k -> P m) -> P k) ->
+  (n : BiNat) -> P n
+completeInduction prop trans n =
+  trans n $ induction
+    (\k => (m : BiNat) -> LT m k -> prop m)
+    (\k, pk, m, lt =>
+      case decomposeLTE $ lessThanImpliesLTEPred m (succ k) lt of
+        Left eq =>
+          rewrite eq in
+          rewrite predOfSucc k in
+          trans k pk
+        Right lt2 =>
+          pk m (replace (predOfSucc k) lt2)
+    )
+    (\m, lt => absurd (uninhabited lt))
+    n
+
 minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
