@@ -13,9 +13,9 @@ My exercise in [Idris](https://www.idris-lang.org/), reimplementing natural numb
 - `0` is not a natural number
   - Because every sequence should terminate with 1
 - Costs O(log n) for defining a natural number n
-- Induction through function `BiNat.Properties.induction`
+- Induction through function `BiNat.Properties.Induction.induction`
   - Note that n is not structurally smaller than n + 1
-  - There is also complete induction `BiNat.Properties.completeInduction`
+  - There is also complete induction `BiNat.Properties.LT.completeInduction`
 
 ## Development
 
