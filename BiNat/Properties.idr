@@ -557,6 +557,39 @@ lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTELessThan m m lt2) = abs
 lessThanEqualAntiSymmetric m m (LTELessThan m m lt1) (LTEEqual m)          = absurd $ nIsNotLessThanItself m lt1
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
+decomposeLTE : BiNat.Properties.LTE m n -> Either (m = n) (LT m n)
+decomposeLTE (LTEEqual m)         = Left Refl
+decomposeLTE (LTELessThan m n lt) = Right lt
+
+lessThanOrGTE : (m, n : BiNat) -> Either (LT m n) (LTE n m)
+lessThanOrGTE J         J         = Right $ LTEEqual J
+lessThanOrGTE J         (ns -: n) = Left $ JLT ns n
+lessThanOrGTE (ms -: m) J         = Right $ LTELessThan J (ms -: m) (JLT ms m)
+lessThanOrGTE (ms -: O) (ns -: O) =
+  case lessThanOrGTE ms ns of
+    Left lt   => Left (LTAppend ms ns lt O O)
+    Right gte => case decomposeLTE gte of
+      Left eq  => Right $ rewrite sym eq in LTEEqual (ns -: O)
+      Right gt => Right $ LTELessThan (ns -: O) (ms -: O) (LTAppend ns ms gt O O)
+lessThanOrGTE (ms -: O) (ns -: I) =
+  case lessThanOrGTE ms ns of
+    Left lt   => Left (LTAppend ms ns lt O I)
+    Right gte => case decomposeLTE gte of
+      Left eq  => Left $ rewrite eq in LTLeading ms
+      Right gt => Right $ LTELessThan (ns -: I) (ms -: O) (LTAppend ns ms gt I O)
+lessThanOrGTE (ms -: I) (ns -: O) =
+  case lessThanOrGTE ms ns of
+    Left lt   => Left (LTAppend ms ns lt I O)
+    Right gte => case decomposeLTE gte of
+      Left eq  => Right $ LTELessThan (ns -: O) (ms -: I) (rewrite sym eq in LTLeading ns)
+      Right gt => Right $ LTELessThan (ns -: O) (ms -: I) (LTAppend ns ms gt O I)
+lessThanOrGTE (ms -: I) (ns -: I) =
+  case lessThanOrGTE ms ns of
+    Left lt   => Left (LTAppend ms ns lt I I)
+    Right gte => case decomposeLTE gte of
+      Left eq  => Right $ rewrite sym eq in LTEEqual (ns -: I)
+      Right gt => Right $ LTELessThan (ns -: I) (ms -: I) (LTAppend ns ms gt I I)
+
 lessThanAppended : (n : BiNat) -> (b : Bit) -> LT n (n -: b)
 lessThanAppended J         b = JLT J b
 lessThanAppended (ns -: n) b = LTAppend ns (ns -: n) (lessThanAppended ns n) n b
@@ -576,10 +609,6 @@ predIsLessThan (ns -: O -: O) _ =
   LTAppend (pred (ns -: O)) (ns -: O) (predIsLessThan (ns -: O) (JLT ns O)) I O
 predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns) I O
 predIsLessThan (ns -: I)      _ = LTLeading ns
-
-decomposeLTE : BiNat.Properties.LTE m n -> Either (m = n) (LT m n)
-decomposeLTE (LTEEqual m)         = Left Refl
-decomposeLTE (LTELessThan m n lt) = Right lt
 
 lessThanImpliesLTEPred : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m (pred n)
 lessThanImpliesLTEPred m J lt impossible
