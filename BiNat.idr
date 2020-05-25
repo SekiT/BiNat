@@ -118,6 +118,12 @@ minus' (ms -: I)  (ns -: I) tail = minus' ms ns (O :: tail)
 minus : BiNat -> BiNat -> BiNat
 minus m n = minus' m n []
 
+Eq BiNat where
+  J         == J         = True
+  (ns -: O) == (ms -: O) = ns == ms
+  (ns -: I) == (ms -: I) = ns == ms
+  _         == _         = False
+
 Num BiNat where
   (+) = plus
   (*) = mult
