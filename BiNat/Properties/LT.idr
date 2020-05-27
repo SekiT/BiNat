@@ -7,17 +7,6 @@ import BiNat.Properties.Induction
 %access public export
 %default total
 
-||| Proofs that a BiNat is less than another BiNat.
-data LT : BiNat -> BiNat -> Type where
-  JLT : (ns : BiNat) -> (n : Bit) -> LT J (ns -: n)
-  LTLeading : (ns : BiNat) -> LT (ns -: O) (ns -: I)
-  LTAppend : (ms, ns : BiNat) -> LT ms ns -> (m, n : Bit) -> LT (ms -: m) (ns -: n)
-
-Uninhabited (LT n J) where
-  uninhabited JLT       impossible
-  uninhabited LTLeading impossible
-  uninhabited LTAppend  impossible
-
 nIsNotLessThanItself : (n : BiNat) -> Not (LT n n)
 nIsNotLessThanItself J         lt = uninhabited {t = LT J J} lt
 nIsNotLessThanItself (ns -: n) (JLT ms m) impossible
@@ -34,18 +23,14 @@ lessThanImpliesNotGreaterThan (ms -: I) (ms -: O) (LTAppend ms ms lt I O) (LTLea
 lessThanImpliesNotGreaterThan (ms -: m) (ns -: n) (LTAppend ms ns lt1 m n) (LTAppend ns ms lt2 n m) =
   lessThanImpliesNotGreaterThan ms ns lt1 lt2
 
-lessThanTransitive : BiNat.Properties.LT.LT l m -> LT m n -> LT l n
+lessThanTransitive : BiNat.LT l m -> LT m n -> LT l n
 lessThanTransitive (JLT ms O)               (LTLeading ms)           = JLT ms I
 lessThanTransitive (JLT ms m)               (LTAppend ms ns lt m n)  = JLT ns n
 lessThanTransitive (LTLeading ls)           (LTAppend ls ns lt I n)  = LTAppend ls ns lt O n
 lessThanTransitive (LTAppend ls ms lt l O)  (LTLeading ms)           = LTAppend ls ms lt l I
 lessThanTransitive (LTAppend ls ms lt1 l m) (LTAppend ms ns lt2 m n) = LTAppend ls ns (lessThanTransitive lt1 lt2) l n
 
-data LTE : BiNat -> BiNat -> Type where
-  LTEEqual : (n : BiNat) -> LTE n n
-  LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
-
-lessThanEqualTransitive : BiNat.Properties.LT.LTE l m -> LTE m n -> LTE l n
+lessThanEqualTransitive : BiNat.LTE l m -> LTE m n -> LTE l n
 lessThanEqualTransitive (LTEEqual l)          (LTEEqual l)          = LTEEqual l
 lessThanEqualTransitive (LTELessThan l m lt1) (LTEEqual m)          = LTELessThan l m lt1
 lessThanEqualTransitive (LTEEqual l)          (LTELessThan l n lt2) = LTELessThan l n lt2
@@ -57,7 +42,7 @@ lessThanEqualAntiSymmetric m m (LTEEqual m)          (LTELessThan m m lt2) = abs
 lessThanEqualAntiSymmetric m m (LTELessThan m m lt1) (LTEEqual m)          = absurd $ nIsNotLessThanItself m lt1
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
-decomposeLTE : BiNat.Properties.LT.LTE m n -> Either (m = n) (LT m n)
+decomposeLTE : BiNat.LTE m n -> Either (m = n) (LT m n)
 decomposeLTE (LTEEqual m)         = Left Refl
 decomposeLTE (LTELessThan m n lt) = Right lt
 

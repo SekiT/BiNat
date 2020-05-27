@@ -124,6 +124,21 @@ Eq BiNat where
   (ns -: I) == (ms -: I) = ns == ms
   _         == _         = False
 
+||| Proofs that a BiNat is less than another BiNat.
+data LT : BiNat -> BiNat -> Type where
+  JLT : (ns : BiNat) -> (n : Bit) -> LT J (ns -: n)
+  LTLeading : (ns : BiNat) -> LT (ns -: O) (ns -: I)
+  LTAppend : (ms, ns : BiNat) -> LT ms ns -> (m, n : Bit) -> LT (ms -: m) (ns -: n)
+
+Uninhabited (LT n J) where
+  uninhabited JLT       impossible
+  uninhabited LTLeading impossible
+  uninhabited LTAppend  impossible
+
+data LTE : BiNat -> BiNat -> Type where
+  LTEEqual : (n : BiNat) -> LTE n n
+  LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
+
 Num BiNat where
   (+) = plus
   (*) = mult
