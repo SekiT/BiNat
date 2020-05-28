@@ -193,3 +193,28 @@ minusNPlusN m n =
     )
     (\lt => absurd (uninhabited lt))
     m
+
+succIntoMinus : (m, n : BiNat) -> LT n m -> succ (minus m n) = minus (succ m) n
+succIntoMinus m n lt =
+  induction
+    (\k => LT n k -> succ (minus k n) = minus (succ k) n)
+    (\k, pk, ltSucc =>
+      case decomposeLTE $ lessThanImpliesLTEPred n (succ k) ltSucc of
+        Left eq =>
+          rewrite eq in
+          rewrite predOfSucc k in
+          rewrite sym $ jPlusIsSucc k in
+          rewrite plusNMinusN J k in
+          rewrite sym $ jPlusIsSucc (plus J k) in
+          rewrite plusAssociative J J k in
+          rewrite plusNMinusN (J -: O) k in Refl
+        Right lt =>
+          rewrite sym $ minusNPlusN (succ k) n ltSucc in
+          rewrite sym $ jPlusIsSucc (plus (minus (succ k) n) n) in
+          rewrite plusAssociative J (minus (succ k) n) n in
+          rewrite plusNMinusN (plus J (minus (succ k) n)) n in
+          rewrite jPlusIsSucc (minus (succ k) n) in
+          rewrite plusNMinusN (minus (succ k) n) n in Refl
+    )
+    (absurd . uninhabited)
+    m lt
