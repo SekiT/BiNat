@@ -218,3 +218,30 @@ succIntoMinus m n lt =
     )
     (absurd . uninhabited)
     m lt
+
+minusIntoPlusLeft : (l, m, n : BiNat) -> LT n l -> minus (plus l m) n = plus (minus l n) m
+minusIntoPlusLeft l m n lt =
+  induction
+    (\k => minus (plus l k) n = plus (minus l n) k)
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite plusAssociative l k J in
+      rewrite plusJIsSucc (plus l k) in
+      let nLtLPlusK = lessThanTransitive lt (replace (plusSymmetric k l) (lessThanPlus l k)) in
+      rewrite sym $ succIntoMinus (plus l k) n nLtLPlusK in
+      rewrite pk in
+      rewrite sym $ plusJIsSucc (plus (minus l n) k5) in
+      rewrite sym $ plusAssociative (minus l n) k J in Refl
+    )
+    (
+      rewrite plusJIsSucc l in
+      rewrite plusJIsSucc (minus l n) in
+      sym $ succIntoMinus l n lt
+    )
+    m
+
+minusIntoPlusRight : (l, m, n : BiNat) -> LT n m -> minus (plus l m) n = plus l (minus m n)
+minusIntoPlusRight l m n lt =
+  rewrite plusSymmetric l m in
+  rewrite minusIntoPlusLeft m l n lt in
+  plusSymmetric (minus m n) l
