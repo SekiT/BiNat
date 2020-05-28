@@ -66,6 +66,10 @@ minusLast1J J         tail notJ = absurd (notJ Refl)
 minusLast1J (ms -: O) tail _    = Refl
 minusLast1J (ms -: I) tail _    = Refl
 
+jMinusIsJ : (n : BiNat) -> minus J n = J
+jMinusIsJ J         = Refl
+jMinusIsJ (ns -: n) = Refl
+
 minusJIsPred : (n : BiNat) -> minus n J = pred n
 minusJIsPred J              = Refl
 minusJIsPred (J -: O)       = Refl
