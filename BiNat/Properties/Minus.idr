@@ -219,6 +219,21 @@ succIntoMinus m n lt =
     (absurd . uninhabited)
     m lt
 
+succNMinusNIsJ : (n : BiNat) -> minus (succ n) n = J
+succNMinusNIsJ J         = Refl
+succNMinusNIsJ (ns -: O) = rewrite minusLast10 ns ns [] in minusOfItSelf ns [I]
+succNMinusNIsJ (ns -: I) =
+  rewrite succDashAppendsAcc ns [O] in
+  rewrite minusLast01 (succ ns) ns [] (succIsNotJ ns) in
+  rewrite predOfSucc ns in
+  minusOfItSelf ns [I]
+
+nMinusPredNIsJ : (n : BiNat) -> minus n (pred n) = J
+nMinusPredNIsJ J              = Refl
+nMinusPredNIsJ (J -: O)       = Refl
+nMinusPredNIsJ (ns -: n -: O) = rewrite predDashAppendsAcc (ns -: n) [I] in minusOfItSelf (pred (ns -: n)) [I]
+nMinusPredNIsJ (ns -: I)      = rewrite minusLast10 ns ns [] in minusOfItSelf ns [I]
+
 minusIntoPlusLeft : (l, m, n : BiNat) -> LT n l -> minus (plus l m) n = plus (minus l n) m
 minusIntoPlusLeft l m n lt =
   induction
