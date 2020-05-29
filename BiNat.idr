@@ -130,6 +130,9 @@ data LT : BiNat -> BiNat -> Type where
   LTLeading : (ms : BiNat) -> (ns : BiNat) -> ms = ns -> LT (ms -: O) (ns -: I)
   LTAppend : (ms, ns : BiNat) -> LT ms ns -> (m, n : Bit) -> LT (ms -: m) (ns -: n)
 
+GT : BiNat -> BiNat -> Type
+GT m n = LT n m
+
 Uninhabited (LT n J) where
   uninhabited JLT       impossible
   uninhabited LTLeading impossible

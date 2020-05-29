@@ -16,7 +16,7 @@ nIsNotLessThanItself (ns -: n) (LTAppend ns ns lt n n) = nIsNotLessThanItself ns
 lessThanImpliesNotEqual : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (m = n)
 lessThanImpliesNotEqual m n lt eq = nIsNotLessThanItself n $ replace {P = \z => LT z n} eq lt
 
-lessThanImpliesNotGreaterThan : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (LT n m)
+lessThanImpliesNotGreaterThan : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (GT m n)
 lessThanImpliesNotGreaterThan J         (ns -: n) (JLT ns n) lt = uninhabited lt
 lessThanImpliesNotGreaterThan (ms -: O) (ns -: I) (LTLeading ms ns eq) (LTAppend ns ms lt I O) =
   nIsNotLessThanItself ns (replace eq lt)

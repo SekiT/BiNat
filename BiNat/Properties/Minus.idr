@@ -86,7 +86,7 @@ minusOfItSelf (J -: I)       tail = Refl
 minusOfItSelf (ns -: O -: I) tail = rewrite minusOfItSelf (ns -: O) (O :: tail) in Refl
 minusOfItSelf (ns -: I -: I) tail = rewrite minusOfItSelf (ns -: I) (O :: tail) in Refl
 
-minusDashAppendsTail : (m : BiNat) -> (n : BiNat) -> LT n m -> (tail : List Bit) ->
+minusDashAppendsTail : (m : BiNat) -> (n : BiNat) -> GT m n -> (tail : List Bit) ->
   minus' m n tail = foldl (-:) (minus' m n []) tail
 minusDashAppendsTail J              n              lt tail impossible
 minusDashAppendsTail (J -: O)       J              lt tail = Refl
@@ -176,7 +176,7 @@ plusNMinusN (ms -: I)      (ns -: I)      =
   rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [I] in
   rewrite plusNMinusN ms ns in Refl
 
-minusNPlusN : (m : BiNat) -> (n : BiNat) -> LT n m -> plus (minus m n) n = m
+minusNPlusN : (m : BiNat) -> (n : BiNat) -> GT m n -> plus (minus m n) n = m
 minusNPlusN m n =
   induction
     (\k => LT n k -> plus (minus k n) n = k)
@@ -199,7 +199,7 @@ minusNPlusN m n =
     (\lt => absurd (uninhabited lt))
     m
 
-succIntoMinus : (m, n : BiNat) -> LT n m -> succ (minus m n) = minus (succ m) n
+succIntoMinus : (m, n : BiNat) -> GT m n -> succ (minus m n) = minus (succ m) n
 succIntoMinus m n lt =
   induction
     (\k => LT n k -> succ (minus k n) = minus (succ k) n)
@@ -239,7 +239,7 @@ nMinusPredNIsJ (J -: O)       = Refl
 nMinusPredNIsJ (ns -: n -: O) = rewrite predDashAppendsAcc (ns -: n) [I] in minusOfItSelf (pred (ns -: n)) [I]
 nMinusPredNIsJ (ns -: I)      = rewrite minusLast10 ns ns [] in minusOfItSelf ns [I]
 
-minusIntoPlusLeft : (l, m, n : BiNat) -> LT n l -> minus (plus l m) n = plus (minus l n) m
+minusIntoPlusLeft : (l, m, n : BiNat) -> GT l n -> minus (plus l m) n = plus (minus l n) m
 minusIntoPlusLeft l m n lt =
   induction
     (\k => minus (plus l k) n = plus (minus l n) k)
@@ -260,7 +260,7 @@ minusIntoPlusLeft l m n lt =
     )
     m
 
-minusIntoPlusRight : (l, m, n : BiNat) -> LT n m -> minus (plus l m) n = plus l (minus m n)
+minusIntoPlusRight : (l, m, n : BiNat) -> GT m n -> minus (plus l m) n = plus l (minus m n)
 minusIntoPlusRight l m n lt =
   rewrite plusSymmetric l m in
   rewrite minusIntoPlusLeft m l n lt in
