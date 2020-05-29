@@ -283,3 +283,59 @@ compareGT (ms -: O) (ns -: I) (LTAppend ns ms gt I O) last = compareGT ms ns gt 
 compareGT (ms -: I) (ns -: O) (LTAppend ns ms gt O I) last = compareGT ms ns gt GT
 compareGT (ms -: I) (ns -: O) (LTLeading ns ms eq)    last = rewrite eq in compareSelf ms ms Refl GT
 compareGT (ms -: I) (ns -: I) (LTAppend ns ms gt I I) last = compareGT ms ns gt last
+
+-- These should be in Prelude.Interfaces
+Uninhabited (EQ = LT) where
+  uninhabited Refl impossible
+Uninhabited (EQ = GT) where
+  uninhabited Refl impossible
+Uninhabited (LT = EQ) where
+  uninhabited Refl impossible
+Uninhabited (Prelude.Interfaces.LT = GT) where
+  uninhabited Refl impossible
+Uninhabited (GT = EQ) where
+  uninhabited Refl impossible
+Uninhabited (Prelude.Interfaces.GT = LT) where
+  uninhabited Refl impossible
+
+compareRecoversEQ : (m, n : BiNat) -> compare m n = EQ -> m = n
+compareRecoversEQ m n eq =
+  case lessThanOrGTE m n of
+    Left lt                    =>
+      let itsLt = compareLT m n lt EQ in
+      let paradox = replace {P = \z => z = LT} eq itsLt in
+      absurd (uninhabited paradox)
+    Right (LTEEqual n m eq2)   =>
+      sym eq2
+    Right (LTELessThan n m gt) =>
+      let itsGt = compareGT m n gt EQ in
+      let paradox = replace {P = \z => z = GT} eq itsGt in
+      absurd (uninhabited paradox)
+
+compareRecoversLT : (m, n : BiNat) -> compare m n = LT -> LT m n
+compareRecoversLT m n eq =
+  case lessThanOrGTE m n of
+    Left lt                    =>
+      lt
+    Right (LTEEqual n m eq2)   =>
+      let itsEq = compareSelf m n (sym eq2) EQ in
+      let paradox = replace {P = \z => z = EQ} eq itsEq in
+      absurd (uninhabited paradox)
+    Right (LTELessThan n m gt) =>
+      let itsGt = compareGT m n gt EQ in
+      let paradox = replace {P = \z => z = GT} eq itsGt in
+      absurd (uninhabited paradox)
+
+compareRecoversGT : (m, n : BiNat) -> compare m n = GT -> GT m n
+compareRecoversGT m n eq =
+  case lessThanOrGTE n m of
+    Left gt                    =>
+      gt
+    Right (LTEEqual m n eq2)   =>
+      let itsEq = compareSelf m n eq2 EQ in
+      let paradox = replace {P = \z => z = EQ} eq itsEq in
+      absurd (uninhabited paradox)
+    Right (LTELessThan m n lt) =>
+      let itsLt = compareLT m n lt EQ in
+      let paradox = replace {P = \z => z = LT} eq itsLt in
+      absurd (uninhabited paradox)
