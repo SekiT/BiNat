@@ -44,7 +44,7 @@ lessThanEqualTransitive (LTEEqual l m eq1)    (LTELessThan m n lt2) =
 lessThanEqualTransitive (LTELessThan l m lt1) (LTELessThan m n lt2) =
   LTELessThan l n (lessThanTransitive lt1 lt2)
 
-lessThanEqualAntiSymmetric : (m, n : BiNat) -> LTE m n -> LTE n m -> m = n
+lessThanEqualAntiSymmetric : (m, n : BiNat) -> LTE m n -> GTE m n -> m = n
 lessThanEqualAntiSymmetric m n (LTEEqual m n eq1)    (LTEEqual n m eq2)    = eq1
 lessThanEqualAntiSymmetric m n (LTEEqual m n eq1)    (LTELessThan n m lt2) =
   absurd $ nIsNotLessThanItself n (replace {P = \z => LT n z} eq1 lt2)
@@ -52,7 +52,7 @@ lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTEEqual n m eq2)    =
   absurd $ nIsNotLessThanItself m (replace {P = \z => LT m z} eq2 lt1)
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
-lessThanOrGTE : (m, n : BiNat) -> Either (LT m n) (LTE n m)
+lessThanOrGTE : (m, n : BiNat) -> Either (LT m n) (GTE m n)
 lessThanOrGTE J         J         = Right $ LTEEqual J J Refl
 lessThanOrGTE J         (ns -: n) = Left $ JLT ns n
 lessThanOrGTE (ms -: m) J         = Right $ LTELessThan J (ms -: m) (JLT ms m)

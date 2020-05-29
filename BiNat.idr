@@ -142,6 +142,9 @@ data LTE : BiNat -> BiNat -> Type where
   LTEEqual : (m : BiNat) -> (n : BiNat) -> m = n -> LTE m n
   LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
 
+GTE : BiNat -> BiNat -> Type
+GTE m n = LTE n m
+
 Num BiNat where
   (+) = plus
   (*) = mult
