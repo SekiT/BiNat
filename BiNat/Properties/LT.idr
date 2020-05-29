@@ -16,6 +16,9 @@ nIsNotLessThanItself (ns -: n) (LTAppend ns ns lt n n) = nIsNotLessThanItself ns
 lessThanImpliesNotEqual : (m, n : BiNat) -> LT m n -> Not (m = n)
 lessThanImpliesNotEqual m n lt eq = nIsNotLessThanItself n $ replace {P = \z => LT z n} eq lt
 
+greaterThanImpliesNotEqual : (m, n : BiNat) -> GT m n -> Not (m = n)
+greaterThanImpliesNotEqual m n gt = (lessThanImpliesNotEqual n m gt) . sym
+
 lessThanImpliesNotGreaterThan : (m, n : BiNat) -> LT m n -> Not (GT m n)
 lessThanImpliesNotGreaterThan J         (ns -: n) (JLT ns n) lt = uninhabited lt
 lessThanImpliesNotGreaterThan (ms -: O) (ns -: I) (LTLeading ms ns eq) (LTAppend ns ms lt I O) =
@@ -222,6 +225,19 @@ lessThanImpliesLTEOfPreds (ms -: m) ns             lt =
   lessThanEqualTransitive
     (LTELessThan (pred (ms -: m)) (ms -: m) (predIsLessThan (ms -: m) (JLT ms m)))
     (lessThanImpliesLTEPred (ms -: m) ns lt)
+
+predKeepsLessThan : (m, n : BiNat) -> LT J m -> LT m n -> LT (pred m) (pred n)
+predKeepsLessThan m n jltm lt =
+  case lessThanImpliesLTEOfPreds m n lt of
+    LTEEqual (pred m) (pred n) eq =>
+      let nIsNotJ = greaterThanImpliesNotEqual n J (lessThanTransitive jltm lt) in
+      let mIsNotJ = greaterThanImpliesNotEqual m J jltm in
+      let mEQn = replace {P = \z => m = z} (succOfPred n nIsNotJ) $
+                 replace {P = \z => z = succ (pred n)} (succOfPred m mIsNotJ) $
+                 replace {P = \z => succ (pred m) = succ z} eq Refl in
+      absurd $ lessThanImpliesNotEqual m n lt mEQn
+    LTELessThan (pred m) (pred n) lt =>
+      lt
 
 predRecoversLT : (m, n : BiNat) -> LT (pred m) (pred n) -> LT m n
 predRecoversLT m         J         lt impossible
