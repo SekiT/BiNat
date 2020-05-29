@@ -3,6 +3,7 @@ module BiNat.Properties.Mult
 import BiNat
 import BiNat.Properties.Plus
 import BiNat.Properties.Induction
+import BiNat.Properties.LT
 
 %access public export
 %default total
@@ -154,3 +155,24 @@ appendOIsTwice n =
 
 appendIIsTwicePlusJ : (n : BiNat) -> n -: I = plus (mult n (J -: O)) J
 appendIIsTwicePlusJ n = rewrite sym $ appendOIsTwice n in Refl
+
+multNKeepsLT : (l, m : BiNat) -> LT l m -> (n : BiNat) -> LT (mult l n) (mult m n)
+multNKeepsLT l m lt n =
+  induction
+    (\k => LT (mult l k) (mult m k))
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite multDistributesPlusRight l k J in
+      rewrite multDistributesPlusRight m k J in
+      rewrite multJIsId l in
+      rewrite multJIsId m in
+      lessThanTransitive
+        (plusNKeepsLessThan (mult l k) (mult m k) pk l)
+        (
+          rewrite plusSymmetric (mult m k) l in
+          rewrite plusSymmetric (mult m k) m in
+          plusNKeepsLessThan l m lt (mult m k)
+        )
+    )
+    (rewrite multJIsId l in rewrite multJIsId m in lt)
+    n
