@@ -11,7 +11,7 @@ My exercise in [Idris](https://www.idris-lang.org/), reimplementing natural numb
 `BiNat` defines a natural number as a finite sequence of bits. By this, we have following features:
 
 - `0` is not a natural number
-  - Because every sequence should terminate with 1
+  - Because every sequence should start with 1
 - Costs O(log n) for defining a natural number n
 - Induction through function `BiNat.Properties.Induction.induction`
   - Note that n is not structurally smaller than n + 1
