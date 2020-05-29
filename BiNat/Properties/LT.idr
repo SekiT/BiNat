@@ -301,41 +301,20 @@ Uninhabited (Prelude.Interfaces.GT = LT) where
 compareRecoversEQ : (m, n : BiNat) -> compare m n = EQ -> m = n
 compareRecoversEQ m n eq =
   case lessThanOrGTE m n of
-    Left lt                    =>
-      let itsLt = compareLT m n lt EQ in
-      let paradox = replace {P = \z => z = LT} eq itsLt in
-      absurd (uninhabited paradox)
-    Right (LTEEqual n m eq2)   =>
-      sym eq2
-    Right (LTELessThan n m gt) =>
-      let itsGt = compareGT m n gt EQ in
-      let paradox = replace {P = \z => z = GT} eq itsGt in
-      absurd (uninhabited paradox)
+    Left lt                    => absurd $ uninhabited $ trans (sym eq) (compareLT m n lt EQ)
+    Right (LTEEqual n m eq2)   => sym eq2
+    Right (LTELessThan n m gt) => absurd $ uninhabited $ trans (sym eq) (compareGT m n gt EQ)
 
 compareRecoversLT : (m, n : BiNat) -> compare m n = LT -> LT m n
 compareRecoversLT m n eq =
   case lessThanOrGTE m n of
-    Left lt                    =>
-      lt
-    Right (LTEEqual n m eq2)   =>
-      let itsEq = compareSelf m n (sym eq2) EQ in
-      let paradox = replace {P = \z => z = EQ} eq itsEq in
-      absurd (uninhabited paradox)
-    Right (LTELessThan n m gt) =>
-      let itsGt = compareGT m n gt EQ in
-      let paradox = replace {P = \z => z = GT} eq itsGt in
-      absurd (uninhabited paradox)
+    Left lt                    => lt
+    Right (LTEEqual n m eq2)   => absurd $ uninhabited $ trans (sym eq) (compareSelf m n (sym eq2) EQ)
+    Right (LTELessThan n m gt) => absurd $ uninhabited $ trans (sym eq) (compareGT m n gt EQ)
 
 compareRecoversGT : (m, n : BiNat) -> compare m n = GT -> GT m n
 compareRecoversGT m n eq =
   case lessThanOrGTE n m of
-    Left gt                    =>
-      gt
-    Right (LTEEqual m n eq2)   =>
-      let itsEq = compareSelf m n eq2 EQ in
-      let paradox = replace {P = \z => z = EQ} eq itsEq in
-      absurd (uninhabited paradox)
-    Right (LTELessThan m n lt) =>
-      let itsLt = compareLT m n lt EQ in
-      let paradox = replace {P = \z => z = LT} eq itsLt in
-      absurd (uninhabited paradox)
+    Left gt                    => gt
+    Right (LTEEqual m n eq2)   => absurd $ uninhabited $ trans (sym eq) (compareSelf m n eq2 EQ)
+    Right (LTELessThan m n lt) => absurd $ uninhabited $ trans (sym eq) (compareLT m n lt EQ)
