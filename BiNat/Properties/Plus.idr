@@ -41,7 +41,7 @@ succOfPred (ns -: O -: O) _    =
   rewrite succDashAppendsAcc (pred' (ns -: O) []) [O] in
   rewrite succOfPred (ns -: O) uninhabited in Refl
 
-succInjective : (m : BiNat) -> (n : BiNat) -> succ m = succ n -> m = n
+succInjective : (m, n : BiNat) -> succ m = succ n -> m = n
 succInjective m n eq =
   rewrite sym $ predOfSucc m in
   rewrite eq in
@@ -55,7 +55,7 @@ jPlusIsSucc : (n : BiNat) -> plus J n = succ n
 jPlusIsSucc J         = Refl
 jPlusIsSucc (ns -: n) = Refl
 
-nextCarrySymmetric : (a : Bit) -> (b : Bit) -> (c : Bit) -> nextCarry a b c = nextCarry b a c
+nextCarrySymmetric : (a, b, c : Bit) -> nextCarry a b c = nextCarry b a c
 nextCarrySymmetric O O O = Refl
 nextCarrySymmetric O O I = Refl
 nextCarrySymmetric O I O = Refl
@@ -65,7 +65,7 @@ nextCarrySymmetric I O I = Refl
 nextCarrySymmetric I I O = Refl
 nextCarrySymmetric I I I = Refl
 
-nextAccSymmetric : (a : Bit) -> (b : Bit) -> (c : Bit) -> nextAcc a b c = nextAcc b a c
+nextAccSymmetric : (a, b, c : Bit) -> nextAcc a b c = nextAcc b a c
 nextAccSymmetric O O O = Refl
 nextAccSymmetric O O I = Refl
 nextAccSymmetric O I O = Refl
@@ -75,7 +75,7 @@ nextAccSymmetric I O I = Refl
 nextAccSymmetric I I O = Refl
 nextAccSymmetric I I I = Refl
 
-plusDashSymmetric : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
+plusDashSymmetric : (m, n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
   plus' m n carry acc = plus' n m carry acc
 plusDashSymmetric J         J         carry acc = Refl
 plusDashSymmetric J         (ns -: n) O     acc = Refl
@@ -87,10 +87,10 @@ plusDashSymmetric (ms -: m) (ns -: n) carry acc =
   rewrite nextAccSymmetric n m carry in
   plusDashSymmetric ms ns (nextCarry m n carry) (nextAcc m n carry :: acc)
 
-plusSymmetric : (m : BiNat) -> (n : BiNat) -> plus m n = plus n m
+plusSymmetric : (m, n : BiNat) -> plus m n = plus n m
 plusSymmetric m n = plusDashSymmetric m n O []
 
-plusDashAppendsAcc : (m : BiNat) -> (n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
+plusDashAppendsAcc : (m, n : BiNat) -> (carry : Bit) -> (acc : List Bit) ->
   plus' m n carry acc = foldl (-:) (plus' m n carry []) acc
 plusDashAppendsAcc J         J         carry acc = Refl
 plusDashAppendsAcc J         (ns -: n) O     acc = succDashAppendsAcc (ns -: n) acc
@@ -105,7 +105,7 @@ plusDashAppendsAcc (ms -: m) (ns -: n) carry acc =
   rewrite plusDashAppendsAcc ms ns (nextCarry m n carry) (nextAcc m n carry :: acc) in
   rewrite plusDashAppendsAcc ms ns (nextCarry m n carry) [nextAcc m n carry] in Refl
 
-succGoesToCarry : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+succGoesToCarry : (m, n : BiNat) -> (acc : List Bit) ->
   succ' (plus' m n O []) acc = plus' m n I acc
 succGoesToCarry J         J         acc = Refl
 succGoesToCarry (ms -: O) J         acc = Refl
@@ -129,7 +129,7 @@ succGoesToCarry (ms -: I) (ns -: I) acc =
   rewrite plusDashAppendsAcc ms ns I [O] in
   rewrite plusDashAppendsAcc ms ns I (I :: acc) in Refl
 
-succDashCommutesToPlusDashSnd : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+succDashCommutesToPlusDashSnd : (m, n : BiNat) -> (acc : List Bit) ->
   succ' (plus m n) acc = plus' m (succ n) O acc
 succDashCommutesToPlusDashSnd J         J         acc = Refl
 succDashCommutesToPlusDashSnd J         (ns -: O) acc = Refl
@@ -162,14 +162,14 @@ succDashCommutesToPlusDashSnd (ms -: I) (ns -: I) acc =
   rewrite sym $ succDashCommutesToPlusDashSnd ms ns (I :: acc) in
   rewrite succDashAppendsAcc (plus' ms ns O []) (I :: acc) in Refl
 
-succDashCommutesToPlusDashFst : (m : BiNat) -> (n : BiNat) -> (acc : List Bit) ->
+succDashCommutesToPlusDashFst : (m, n : BiNat) -> (acc : List Bit) ->
   succ' (plus m n) acc = plus' (succ m) n O acc
 succDashCommutesToPlusDashFst m n acc =
   rewrite plusSymmetric m n in
   rewrite succDashCommutesToPlusDashSnd n m acc in
   rewrite plusDashSymmetric n (succ m) O acc in Refl
 
-plusAssociative : (l : BiNat) -> (m : BiNat) -> (n : BiNat) -> plus l (plus m n) = plus (plus l m) n
+plusAssociative : (l, m, n : BiNat) -> plus l (plus m n) = plus (plus l m) n
 plusAssociative J         J         J         = Refl
 plusAssociative J         J         (ns -: O) =
   rewrite succDashAppendsAcc ns [O] in
@@ -335,7 +335,7 @@ predOfDoubled J notJ = absurd $ notJ Refl
 predOfDoubled (ns -: O) _ = predDashAppendsAcc (ns -: O) [I]
 predOfDoubled (ns -: I) _ = Refl
 
-predCommutesToPlusSnd : (m : BiNat) -> (n : BiNat) -> Not (n = J) ->
+predCommutesToPlusSnd : (m, n : BiNat) -> Not (n = J) ->
   pred (plus m n) = plus m (pred n)
 predCommutesToPlusSnd J         n notJ =
   rewrite jPlusIsSucc n in

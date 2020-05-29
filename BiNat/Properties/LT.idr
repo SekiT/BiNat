@@ -13,10 +13,10 @@ nIsNotLessThanItself (ns -: n) (JLT ms m) impossible
 nIsNotLessThanItself (ns -: n) (LTLeading _ _ _) impossible
 nIsNotLessThanItself (ns -: n) (LTAppend ns ns lt n n) = nIsNotLessThanItself ns lt
 
-lessThanImpliesNotEqual : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (m = n)
+lessThanImpliesNotEqual : (m, n : BiNat) -> LT m n -> Not (m = n)
 lessThanImpliesNotEqual m n lt eq = nIsNotLessThanItself n $ replace {P = \z => LT z n} eq lt
 
-lessThanImpliesNotGreaterThan : (m : BiNat) -> (n : BiNat) -> LT m n -> Not (GT m n)
+lessThanImpliesNotGreaterThan : (m, n : BiNat) -> LT m n -> Not (GT m n)
 lessThanImpliesNotGreaterThan J         (ns -: n) (JLT ns n) lt = uninhabited lt
 lessThanImpliesNotGreaterThan (ms -: O) (ns -: I) (LTLeading ms ns eq) (LTAppend ns ms lt I O) =
   nIsNotLessThanItself ns (replace eq lt)
@@ -97,7 +97,7 @@ predIsLessThan (ns -: O -: O) _ =
 predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns ns Refl) I O
 predIsLessThan (ns -: I)      _ = LTLeading ns ns Refl
 
-lessThanImpliesLTEPred : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m (pred n)
+lessThanImpliesLTEPred : (m, n : BiNat) -> LT m n -> LTE m (pred n)
 lessThanImpliesLTEPred m J lt impossible
 lessThanImpliesLTEPred J (J -: O)       _ = LTEEqual J J Refl
 lessThanImpliesLTEPred J (ns -: O -: O) _ =
@@ -130,7 +130,7 @@ lessThanImpliesLTEPred (ms -: I) (ns -: n -: O) (LTAppend ms (ns -: n) lt I O) =
 lessThanImpliesLTEPred (ms -: I) (ns -: I) (LTAppend ms ns lt I I) =
   LTELessThan (ms -: I) (ns -: O) (LTAppend ms ns lt I O)
 
-lessThanImpliesSuccLTE : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE (succ m) n
+lessThanImpliesSuccLTE : (m, n : BiNat) -> LT m n -> LTE (succ m) n
 lessThanImpliesSuccLTE m         J lt impossible
 lessThanImpliesSuccLTE J         (J -: O)       (JLT J O) = LTEEqual (J -: O) (J -: O) Refl
 lessThanImpliesSuccLTE J         (J -: I)       (JLT J I) =
@@ -160,7 +160,7 @@ lessThanImpliesSuccLTE (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
     LTELessThan _ _ lt2 =>
       LTELessThan (succ ms -: O) (ns -: I) (LTAppend (succ ms) ns lt2 O I)
 
-succKeepsLessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LT (succ m) (succ n)
+succKeepsLessThan : (m, n : BiNat) -> LT m n -> LT (succ m) (succ n)
 succKeepsLessThan m         J              lt impossible
 succKeepsLessThan J         (J -: O)       lt = LTLeading J J Refl
 succKeepsLessThan J         (ns -: n -: O) lt = LTAppend J (ns -: n) (JLT ns n) O I
@@ -201,7 +201,7 @@ plusNKeepsLessThan l m lt n =
     (rewrite plusJIsSucc l in rewrite plusJIsSucc m in succKeepsLessThan l m lt)
     n
 
-succsRecoversLessThan : (m : BiNat) -> (n : BiNat) -> LT (succ m) (succ n) -> LT m n
+succsRecoversLessThan : (m, n : BiNat) -> LT (succ m) (succ n) -> LT m n
 succsRecoversLessThan m n lt =
   case
     replace {P = \z => LTE (succ m) z} (predOfSucc n) $
@@ -212,7 +212,7 @@ succsRecoversLessThan m n lt =
     LTELessThan _ _ lt2 =>
       lessThanTransitive (lessThanSucc m) lt2
 
-lessThanImpliesLTEOfPreds : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE (pred m) (pred n)
+lessThanImpliesLTEOfPreds : (m, n : BiNat) -> LT m n -> LTE (pred m) (pred n)
 lessThanImpliesLTEOfPreds J         (J -: O)       lt = LTEEqual J J Refl
 lessThanImpliesLTEOfPreds J         (ns -: n -: O) lt =
   rewrite predDashAppendsAcc (ns -: n) [I] in
@@ -223,7 +223,7 @@ lessThanImpliesLTEOfPreds (ms -: m) ns             lt =
     (LTELessThan (pred (ms -: m)) (ms -: m) (predIsLessThan (ms -: m) (JLT ms m)))
     (lessThanImpliesLTEPred (ms -: m) ns lt)
 
-predRecoversLT : (m : BiNat) -> (n : BiNat) -> LT (pred m) (pred n) -> LT m n
+predRecoversLT : (m, n : BiNat) -> LT (pred m) (pred n) -> LT m n
 predRecoversLT m         J         lt impossible
 predRecoversLT J         (ns -: n) lt = JLT ns n
 predRecoversLT (ms -: m) (ns -: n) lt =
@@ -231,7 +231,7 @@ predRecoversLT (ms -: m) (ns -: n) lt =
   rewrite sym $ succOfPred (ns -: n) uninhabited in
   succKeepsLessThan (pred (ms -: m)) (pred (ns -: n)) lt
 
-lessThanPlus : (m : BiNat) -> (n : BiNat) -> LT m (plus n m)
+lessThanPlus : (m, n : BiNat) -> LT m (plus n m)
 lessThanPlus m n =
   induction
     (\k => LT m (plus k m))

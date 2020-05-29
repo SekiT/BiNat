@@ -8,7 +8,7 @@ import BiNat.Properties.LT
 %access public export
 %default total
 
-multDashAddsAccMinusJ : (m : BiNat) -> (n : BiNat) -> (acc : BiNat) ->
+multDashAddsAccMinusJ : (m, n : BiNat) -> (acc : BiNat) ->
   mult' m n acc = pred $ plus (mult' m n J) acc
 multDashAddsAccMinusJ J         ns acc = rewrite plusJIsSucc ns in rewrite predOfSucc ns in Refl
 multDashAddsAccMinusJ (ms -: O) ns acc = multDashAddsAccMinusJ ms (ns -: O) acc
@@ -20,8 +20,7 @@ multDashAddsAccMinusJ (ms -: I) ns acc =
   rewrite predOfSucc (plus' (mult' ms (ns -: O) J) ns O []) in
   rewrite plusAssociative (mult' ms (ns -: O) J) ns acc in Refl
 
-multDistributesPlusRight : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
-  mult l (plus m n) = plus (mult l m) (mult l n)
+multDistributesPlusRight : (l, m, n : BiNat) -> mult l (plus m n) = plus (mult l m) (mult l n)
 multDistributesPlusRight J m n =
   rewrite plusJIsSucc (plus' m n O []) in
   rewrite predOfSucc (plus' m n O []) in
@@ -77,8 +76,7 @@ jMultIsId (ns -: I) =
   rewrite predOfDoubled (succ ns) (succIsNotJ ns) in
   rewrite predOfSucc ns in Refl
 
-multDistributesPlusLeft : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
-  mult (plus l m) n = plus (mult l n) (mult m n)
+multDistributesPlusLeft : (l, m, n : BiNat) -> mult (plus l m) n = plus (mult l n) (mult m n)
 multDistributesPlusLeft l m n =
   induction
     (\k => mult (plus l m) k = plus (mult l k) (mult m k))
@@ -100,7 +98,7 @@ multDistributesPlusLeft l m n =
     (rewrite multJIsId (plus l m) in rewrite multJIsId l in rewrite multJIsId m in Refl)
     n
 
-multSymmetric : (m : BiNat) -> (n : BiNat) -> mult m n = mult n m
+multSymmetric : (m, n : BiNat) -> mult m n = mult n m
 multSymmetric m n =
   induction
     (\k => mult k n = mult n k)
@@ -120,8 +118,7 @@ multSymmetric m n =
     )
     m
 
-multAssociative : (l : BiNat) -> (m : BiNat) -> (n : BiNat) ->
-  mult l (mult m n) = mult (mult l m) n
+multAssociative : (l, m, n : BiNat) -> mult l (mult m n) = mult (mult l m) n
 multAssociative l m n =
   induction
     (\k => mult k (mult m n) = mult (mult k m) n)

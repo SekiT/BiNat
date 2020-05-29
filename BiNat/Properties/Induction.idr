@@ -7,7 +7,7 @@ import BiNat.Properties.Plus
 %default total
 
 composeFunctions : {T : BiNat -> Type} -> ((k : BiNat) -> T k -> T (succ k)) ->
-  (m : BiNat) -> (n : BiNat) -> T m -> T (plus m n)
+  (m, n : BiNat) -> T m -> T (plus m n)
 composeFunctions f m J         pm = replace (sym $ plusJIsSucc m) (f m pm)
 composeFunctions f m (ns -: O) pm =
   replace {P = \z => T (plus m z)} (sym $ shiftLeftDoubles ns) $

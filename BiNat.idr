@@ -127,7 +127,7 @@ Eq BiNat where
 ||| Proofs that a BiNat is strictly less than another BiNat.
 data LT : BiNat -> BiNat -> Type where
   JLT : (ns : BiNat) -> (n : Bit) -> LT J (ns -: n)
-  LTLeading : (ms : BiNat) -> (ns : BiNat) -> ms = ns -> LT (ms -: O) (ns -: I)
+  LTLeading : (ms, ns : BiNat) -> ms = ns -> LT (ms -: O) (ns -: I)
   LTAppend : (ms, ns : BiNat) -> LT ms ns -> (m, n : Bit) -> LT (ms -: m) (ns -: n)
 
 ||| Strict greater than
@@ -141,8 +141,8 @@ Uninhabited (LT n J) where
 
 ||| Less than or equal to
 data LTE : BiNat -> BiNat -> Type where
-  LTEEqual : (m : BiNat) -> (n : BiNat) -> m = n -> LTE m n
-  LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
+  LTEEqual : (m, n : BiNat) -> m = n -> LTE m n
+  LTELessThan : (m, n : BiNat) -> LT m n -> LTE m n
 
 ||| Greater than or equal to
 GTE : BiNat -> BiNat -> Type

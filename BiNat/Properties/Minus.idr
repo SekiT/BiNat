@@ -8,7 +8,7 @@ import BiNat.Properties.LT
 %access public export
 %default total
 
-minusLast00 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+minusLast00 : (ms, ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: O) (ns -: O) tail = minus' ms ns (O :: tail)
 minusLast00 J         J         tail = Refl
 minusLast00 J         (ns -: O) tail = Refl
@@ -20,7 +20,7 @@ minusLast00 (ms -: O) (ns -: I) tail = Refl
 minusLast00 (ms -: I) (ns -: O) tail = Refl
 minusLast00 (ms -: I) (ns -: I) tail = Refl
 
-minusLast10 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+minusLast10 : (ms, ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: I) (ns -: O) tail = minus' ms ns (I :: tail)
 minusLast10 J         J         tail = Refl
 minusLast10 J         (ns -: O) tail = Refl
@@ -32,7 +32,7 @@ minusLast10 (ms -: O) (ns -: I) tail = Refl
 minusLast10 (ms -: I) (ns -: O) tail = Refl
 minusLast10 (ms -: I) (ns -: I) tail = Refl
 
-minusLast11 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) ->
+minusLast11 : (ms, ns : BiNat) -> (tail : List Bit) ->
   minus' (ms -: I) (ns -: I) tail = minus' ms ns (O :: tail)
 minusLast11 J         J         tail = Refl
 minusLast11 J         (ns -: O) tail = Refl
@@ -44,7 +44,7 @@ minusLast11 (ms -: O) (ns -: I) tail = Refl
 minusLast11 (ms -: I) (ns -: O) tail = Refl
 minusLast11 (ms -: I) (ns -: I) tail = Refl
 
-minusLast01 : (ms : BiNat) -> (ns : BiNat) -> (tail : List Bit) -> Not (ms = J) ->
+minusLast01 : (ms, ns : BiNat) -> (tail : List Bit) -> Not (ms = J) ->
   minus' (ms -: O) (ns -: I) tail = minus' (pred ms) ns (I :: tail)
 minusLast01 J         ns         tail notJ = absurd (notJ Refl)
 minusLast01 (ms -: O) J          tail _    = Refl
@@ -86,7 +86,7 @@ minusOfItSelf (J -: I)       tail = Refl
 minusOfItSelf (ns -: O -: I) tail = rewrite minusOfItSelf (ns -: O) (O :: tail) in Refl
 minusOfItSelf (ns -: I -: I) tail = rewrite minusOfItSelf (ns -: I) (O :: tail) in Refl
 
-minusDashAppendsTail : (m : BiNat) -> (n : BiNat) -> GT m n -> (tail : List Bit) ->
+minusDashAppendsTail : (m, n : BiNat) -> GT m n -> (tail : List Bit) ->
   minus' m n tail = foldl (-:) (minus' m n []) tail
 minusDashAppendsTail J              n              lt tail impossible
 minusDashAppendsTail (J -: O)       J              lt tail = Refl
@@ -132,7 +132,7 @@ minusDashAppendsTail (ms -: m -: I) (ns -: I)      (LTAppend ns (ms -: m) lt I I
   rewrite minusDashAppendsTail (ms -: m) ns lt (O :: tail) in
   rewrite minusDashAppendsTail (ms -: m) ns lt [O] in Refl
 
-plusNMinusN : (m : BiNat) -> (n : BiNat) -> minus (plus m n) n = m
+plusNMinusN : (m, n : BiNat) -> minus (plus m n) n = m
 plusNMinusN J              J              = Refl
 plusNMinusN J              (J -: O)       = Refl
 plusNMinusN J              (ns -: O -: O) = minusOfItSelf (ns -: O) [I]
@@ -176,7 +176,7 @@ plusNMinusN (ms -: I)      (ns -: I)      =
   rewrite minusDashAppendsTail (plus ms ns) ns (lessThanPlus ns ms) [I] in
   rewrite plusNMinusN ms ns in Refl
 
-minusNPlusN : (m : BiNat) -> (n : BiNat) -> GT m n -> plus (minus m n) n = m
+minusNPlusN : (m, n : BiNat) -> GT m n -> plus (minus m n) n = m
 minusNPlusN m n =
   induction
     (\k => LT n k -> plus (minus k n) n = k)
