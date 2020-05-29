@@ -124,12 +124,13 @@ Eq BiNat where
   (ns -: I) == (ms -: I) = ns == ms
   _         == _         = False
 
-||| Proofs that a BiNat is less than another BiNat.
+||| Proofs that a BiNat is strictly less than another BiNat.
 data LT : BiNat -> BiNat -> Type where
   JLT : (ns : BiNat) -> (n : Bit) -> LT J (ns -: n)
   LTLeading : (ms : BiNat) -> (ns : BiNat) -> ms = ns -> LT (ms -: O) (ns -: I)
   LTAppend : (ms, ns : BiNat) -> LT ms ns -> (m, n : Bit) -> LT (ms -: m) (ns -: n)
 
+||| Strict greater than
 GT : BiNat -> BiNat -> Type
 GT m n = LT n m
 
@@ -138,10 +139,12 @@ Uninhabited (LT n J) where
   uninhabited LTLeading impossible
   uninhabited LTAppend  impossible
 
+||| Less than or equal to
 data LTE : BiNat -> BiNat -> Type where
   LTEEqual : (m : BiNat) -> (n : BiNat) -> m = n -> LTE m n
   LTELessThan : (m : BiNat) -> (n : BiNat) -> LT m n -> LTE m n
 
+||| Greater than or equal to
 GTE : BiNat -> BiNat -> Type
 GTE m n = LTE n m
 
