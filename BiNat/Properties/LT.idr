@@ -260,3 +260,26 @@ completeInduction prop trans n =
     )
     (\m, lt => absurd (uninhabited lt))
     n
+
+compareSelf : (n : BiNat) -> (last : Ordering) -> compare' n n last = last
+compareSelf J         last = Refl
+compareSelf (ns -: O) last = compareSelf ns last
+compareSelf (ns -: I) last = compareSelf ns last
+
+compareLT : (m, n : BiNat) -> LT m n -> (last : Ordering) -> compare' m n last = LT
+compareLT m         J         _                       _    impossible
+compareLT J         (ns -: n) _                       _    = Refl
+compareLT (ms -: O) (ns -: O) (LTAppend ms ns lt O O) last = compareLT ms ns lt last
+compareLT (ms -: O) (ns -: I) (LTAppend ms ns lt O I) last = compareLT ms ns lt LT
+compareLT (ms -: O) (ns -: I) (LTLeading ms ns eq)    last = rewrite eq in compareSelf ns LT
+compareLT (ms -: I) (ns -: O) (LTAppend ms ns lt I O) last = compareLT ms ns lt GT
+compareLT (ms -: I) (ns -: I) (LTAppend ms ns lt I I) last = compareLT ms ns lt last
+
+compareGT : (m, n : BiNat) -> GT m n -> (last : Ordering) -> compare' m n last = GT
+compareGT J         n         _                       _    impossible
+compareGT (ms -: m) J         _                       _    = Refl
+compareGT (ms -: O) (ns -: O) (LTAppend ns ms gt O O) last = compareGT ms ns gt last
+compareGT (ms -: O) (ns -: I) (LTAppend ns ms gt I O) last = compareGT ms ns gt LT
+compareGT (ms -: I) (ns -: O) (LTAppend ns ms gt O I) last = compareGT ms ns gt GT
+compareGT (ms -: I) (ns -: O) (LTLeading ns ms eq)    last = rewrite eq in compareSelf ms GT
+compareGT (ms -: I) (ns -: I) (LTAppend ns ms gt I I) last = compareGT ms ns gt last

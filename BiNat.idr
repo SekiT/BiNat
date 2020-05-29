@@ -148,6 +148,18 @@ data LTE : BiNat -> BiNat -> Type where
 GTE : BiNat -> BiNat -> Type
 GTE m n = LTE n m
 
+compare' : BiNat -> BiNat -> Ordering -> Ordering
+compare' J         J         last = last
+compare' J         (ns -: n) last = LT
+compare' (ms -: m) J         last = GT
+compare' (ms -: O) (ns -: O) last = compare' ms ns last
+compare' (ms -: O) (ns -: I) last = compare' ms ns LT
+compare' (ms -: I) (ns -: O) last = compare' ms ns GT
+compare' (ms -: I) (ns -: I) last = compare' ms ns last
+
+Ord BiNat where
+  compare m n = compare' m n EQ
+
 Num BiNat where
   (+) = plus
   (*) = mult
