@@ -100,19 +100,19 @@ minusDashAppendsTail (ms -: O)      (ns -: O) (LTAppend ns ms lt O O) tail =
   rewrite minusDashAppendsTail ms ns lt [O] in Refl
 minusDashAppendsTail (J -: O)       (ns -: I)      (LTAppend ns J lt I O) tail impossible
 minusDashAppendsTail (ms -: m -: O) (J -: I)       (LTAppend J (ms -: m) lt I O) tail =
-  case decomposeLTE $ lessThanImpliesLTEPred J (ms -: m) lt of
-    Left eq   =>
+  case lessThanImpliesLTEPred J (ms -: m) lt of
+    LTEEqual _ _ eq =>
       rewrite sym $ eq in Refl
-    Right lt2 =>
+    LTELessThan _ _ lt2 =>
       rewrite minusDashAppendsTail (pred (ms -: m)) J lt2 (I :: tail) in
       rewrite minusDashAppendsTail (pred (ms -: m)) J lt2 [I] in Refl
 minusDashAppendsTail (ms -: m -: O) (ns -: n -: I) (LTAppend (ns -: n) (ms -: m) lt I O) tail =
-  case decomposeLTE $ lessThanImpliesLTEPred (ns -: n) (ms -: m) lt of
-    Left eq   =>
+  case lessThanImpliesLTEPred (ns -: n) (ms -: m) lt of
+    LTEEqual _ _ eq =>
       rewrite sym $ eq in
       rewrite minusOfItSelf (ns -: n) (I :: tail) in
       rewrite minusOfItSelf (ns -: n) [I] in Refl
-    Right lt2 =>
+    LTELessThan _ _ lt2 =>
       rewrite minusDashAppendsTail (pred (ms -: m)) (ns -: n) lt2 (I :: tail) in
       rewrite minusDashAppendsTail (pred (ms -: m)) (ns -: n) lt2 [I] in Refl
 minusDashAppendsTail (ms -: I)      (ns -: O)      (LTLeading ns ms eq) tail =
@@ -181,13 +181,13 @@ minusNPlusN m n =
   induction
     (\k => LT n k -> plus (minus k n) n = k)
     (\k, pk, lt =>
-      case decomposeLTE $ lessThanImpliesLTEPred n (succ k) lt of
-        Left eq =>
+      case lessThanImpliesLTEPred n (succ k) lt of
+        LTEEqual _ _ eq =>
           rewrite eq in
           rewrite predOfSucc k in
           rewrite sym $ jPlusIsSucc k in
           rewrite plusNMinusN J k in Refl
-        Right lt2 =>
+        LTELessThan _ _ lt2 =>
           let pk' = pk (replace {P = \z => LT n z} (predOfSucc k) lt2) in
           replace {P = \z => plus (minus (succ z) n) n = succ k} pk' $
           rewrite sym $ jPlusIsSucc (plus (minus k n) n) in
@@ -204,8 +204,8 @@ succIntoMinus m n lt =
   induction
     (\k => LT n k -> succ (minus k n) = minus (succ k) n)
     (\k, pk, ltSucc =>
-      case decomposeLTE $ lessThanImpliesLTEPred n (succ k) ltSucc of
-        Left eq =>
+      case lessThanImpliesLTEPred n (succ k) ltSucc of
+        LTEEqual _ _ eq =>
           rewrite eq in
           rewrite predOfSucc k in
           rewrite sym $ jPlusIsSucc k in
@@ -213,7 +213,7 @@ succIntoMinus m n lt =
           rewrite sym $ jPlusIsSucc (plus J k) in
           rewrite plusAssociative J J k in
           rewrite plusNMinusN (J -: O) k in Refl
-        Right lt =>
+        LTELessThan _ _ lt =>
           rewrite sym $ minusNPlusN (succ k) n ltSucc in
           rewrite sym $ jPlusIsSucc (plus (minus (succ k) n) n) in
           rewrite plusAssociative J (minus (succ k) n) n in
