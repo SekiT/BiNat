@@ -265,3 +265,20 @@ minusIntoPlusRight l m n lt =
   rewrite plusSymmetric l m in
   rewrite minusIntoPlusLeft m l n lt in
   plusSymmetric (minus m n) l
+
+minusGreater : (m, n : BiNat) -> LT m n -> (tail : List Bit) -> minus' m n tail = J
+minusGreater m              J         lt tail impossible
+minusGreater J              (ns -: n) lt tail = Refl
+minusGreater (ms -: O)      (ns -: O) (LTAppend ms ns lt O O) tail =
+  rewrite minusLast00 ms ns tail in minusGreater ms ns lt (O :: tail)
+minusGreater (ms -: I)      (ns -: O) (LTAppend ms ns lt I O) tail =
+  rewrite minusLast10 ms ns tail in minusGreater ms ns lt (I :: tail)
+minusGreater (ms -: I)      (ns -: I) (LTAppend ms ns lt I I) tail =
+  rewrite minusLast11 ms ns tail in minusGreater ms ns lt (O :: tail)
+minusGreater (J -: O)       (ns -: I) lt tail = Refl
+minusGreater (ms -: m -: O) (ns -: I) (LTAppend (ms -: m) ns lt O I) tail =
+  let lt2 = lessThanTransitive (predIsLessThan (ms -: m) (JLT ms m)) lt in
+  minusGreater (pred (ms -: m)) ns lt2 (I :: tail)
+minusGreater (ms -: m -: O) (ns -: I) (LTLeading (ms -: m) ns eq) tail =
+  let lt = replace {P = \z => LT (pred (ms -: m)) z} eq (predIsLessThan (ms -: m) (JLT ms m)) in
+  minusGreater (pred (ms -: m)) ns lt (I :: tail)
