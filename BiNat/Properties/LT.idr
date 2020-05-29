@@ -186,6 +186,21 @@ succKeepsLessThan (ms -: I) (ns -: I)      (LTAppend ms ns lt I I) =
   rewrite succDashAppendsAcc ns [O] in
   LTAppend (succ ms) (succ ns) (succKeepsLessThan ms ns lt) O O
 
+plusNKeepsLessThan : (l, m : BiNat) -> LT l m -> (n : BiNat) -> LT (plus l n) (plus m n)
+plusNKeepsLessThan l m lt n =
+  induction
+    (\k => LT (plus l k) (plus m k))
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite plusAssociative l k J in
+      rewrite plusAssociative m k J in
+      rewrite plusJIsSucc (plus l k) in
+      rewrite plusJIsSucc (plus m k) in
+      succKeepsLessThan (plus l k) (plus m k) pk
+    )
+    (rewrite plusJIsSucc l in rewrite plusJIsSucc m in succKeepsLessThan l m lt)
+    n
+
 succsRecoversLessThan : (m : BiNat) -> (n : BiNat) -> LT (succ m) (succ n) -> LT m n
 succsRecoversLessThan m n lt =
   case
