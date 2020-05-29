@@ -55,6 +55,14 @@ lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTEEqual n m eq2)    =
   absurd $ nIsNotLessThanItself m (replace {P = \z => LT m z} eq2 lt1)
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
+transLTandLTE : BiNat.LT l m -> LTE m n -> LT l n
+transLTandLTE lt1 (LTEEqual m n eq)     = rewrite sym eq in lt1
+transLTandLTE lt1 (LTELessThan m n lt2) = lessThanTransitive lt1 lt2
+
+transLTEandLT : BiNat.LTE l m -> LT m n -> LT l n
+transLTEandLT (LTEEqual l m eq)     lt2 = rewrite eq in lt2
+transLTEandLT (LTELessThan l m lt1) lt2 = lessThanTransitive lt1 lt2
+
 lessThanOrGTE : (m, n : BiNat) -> Either (LT m n) (GTE m n)
 lessThanOrGTE J         J         = Right $ LTEEqual J J Refl
 lessThanOrGTE J         (ns -: n) = Left $ JLT ns n
