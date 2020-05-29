@@ -8,6 +8,8 @@ My exercise in [Idris](https://www.idris-lang.org/), reimplementing natural numb
 - `Nat` has very slow performance (try `fromIntegerNat 100 * 100`)
 - With `Int` or something primitive, we can't write proof by induction
 
+## Features
+
 `BiNat` defines a natural number as a finite sequence of bits. By this, we have following features:
 
 - `0` is not a natural number
