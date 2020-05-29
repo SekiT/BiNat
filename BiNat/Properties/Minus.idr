@@ -115,7 +115,8 @@ minusDashAppendsTail (ms -: m -: O) (ns -: n -: I) (LTAppend (ns -: n) (ms -: m)
     Right lt2 =>
       rewrite minusDashAppendsTail (pred (ms -: m)) (ns -: n) lt2 (I :: tail) in
       rewrite minusDashAppendsTail (pred (ms -: m)) (ns -: n) lt2 [I] in Refl
-minusDashAppendsTail (ms -: I)      (ms -: O)      (LTLeading ms) tail =
+minusDashAppendsTail (ms -: I)      (ns -: O)      (LTLeading ns ms eq) tail =
+  rewrite eq in
   rewrite minusLast10 ms ms tail in
   rewrite minusLast10 ms ms [] in
   case ms of
