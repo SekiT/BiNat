@@ -138,3 +138,19 @@ multAssociative l m n =
       rewrite jMultIsId m in Refl
     )
     l
+
+appendOIsTwice : (n : BiNat) -> n -: O = mult n (J -: O)
+appendOIsTwice n =
+  induction
+    (\k => k -: O = mult k (J -: O))
+    (\k, pk =>
+      rewrite sym $ plusJIsSucc k in
+      rewrite multDistributesPlusLeft k J (J -: O) in
+      rewrite sym pk in
+      sym $ plusDashAppendsAcc k J O [O]
+    )
+    Refl
+    n
+
+appendIIsTwicePlusJ : (n : BiNat) -> n -: I = plus (mult n (J -: O)) J
+appendIIsTwicePlusJ n = rewrite sym $ appendOIsTwice n in Refl
