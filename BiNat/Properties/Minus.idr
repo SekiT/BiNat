@@ -282,3 +282,68 @@ minusGreater (ms -: m -: O) (ns -: I) (LTAppend (ms -: m) ns lt O I) tail =
 minusGreater (ms -: m -: O) (ns -: I) (LTLeading (ms -: m) ns eq) tail =
   let lt = replace {P = \z => LT (pred (ms -: m)) z} eq (predIsLessThan (ms -: m) (JLT ms m)) in
   minusGreater (pred (ms -: m)) ns lt (I :: tail)
+
+minusOfSuccs : (m, n : BiNat) -> minus m n = minus (succ m) (succ n)
+minusOfSuccs J              J         = Refl
+minusOfSuccs J              (ns -: O) = Refl
+minusOfSuccs J              (ns -: I) =
+  rewrite succDashAppendsAcc ns [O] in
+  rewrite minusGreater J (succ ns) (succGreaterThanJ ns) [O] in Refl
+minusOfSuccs (J -: O)       J         = Refl
+minusOfSuccs (ms -: m -: O) J         =
+  rewrite minusDashAppendsTail (ms -: m) J (JLT ms m) [I] in
+  rewrite minusJIsPred (ms -: m) in Refl
+minusOfSuccs (J -: I)       J         = Refl
+minusOfSuccs (ms -: m -: I) J         =
+  rewrite succDashAppendsAcc (ms -: m) [O] in
+  rewrite minusLast00 (succ (ms -: m)) J [] in
+  rewrite minusDashAppendsTail (succ (ms -: m)) J (succGreaterThanJ (ms -: m)) [O] in
+  rewrite minusJIsPred (succ (ms -: m)) in
+  rewrite predOfSucc (ms -: m) in Refl
+minusOfSuccs (ms -: O)      (ns -: O) = rewrite minusLast11 ms ns [] in minusLast00 ms ns []
+minusOfSuccs (J -: O)       (ns -: I) =
+  rewrite succDashAppendsAcc ns [O] in
+  sym $ minusGreater J (succ ns) (succGreaterThanJ ns) [I]
+minusOfSuccs (ms -: m -: O) (ns -: I) =
+  rewrite succDashAppendsAcc ns [O] in
+  case lessThanOrGTE ns (pred (ms -: m)) of
+    Left nLTpredm =>
+      let succnLTm = replace {P = \z => LT (succ ns) z} (succOfPred (ms -: m) uninhabited) $
+                     succKeepsLessThan ns (pred (ms -: m)) nLTpredm in
+      rewrite minusDashAppendsTail (pred (ms -: m)) ns nLTpredm [I] in
+      rewrite minusDashAppendsTail (ms -: m) (succ ns) succnLTm [I] in
+      rewrite minusOfSuccs (pred (ms -: m)) ns in
+      rewrite succOfPred (ms -: m) uninhabited in Refl
+    Right (LTEEqual (pred (ms -: m)) ns eq) =>
+      rewrite sym $ succOfPred (ms -: m) uninhabited in
+      rewrite eq in
+      rewrite predOfSucc ns in
+      rewrite minusOfItSelf ns [I] in
+      rewrite minusOfItSelf (succ ns) [I] in Refl
+    Right (LTELessThan (pred (ms -: m)) ns predmLTn) =>
+      let mLTsuccn = replace {P = \z => LT z (succ ns)} (succOfPred (ms -: m) uninhabited) $
+                     succKeepsLessThan (pred (ms -: m)) ns predmLTn in
+      rewrite minusGreater (pred (ms -: m)) ns predmLTn [I] in
+      rewrite minusGreater (ms -: m) (succ ns) mLTsuccn [I] in Refl
+minusOfSuccs (ms -: I)      (ns -: O) =
+  rewrite minusLast10 ms ns [] in
+  rewrite succDashAppendsAcc ms [O] in
+  rewrite minusLast01 (succ ms) ns [] (succIsNotJ ms) in
+  rewrite predOfSucc ms in Refl
+minusOfSuccs (ms -: I)      (ns -: I) =
+  rewrite minusLast11 ms ns [] in
+  rewrite succDashAppendsAcc ms [O] in
+  rewrite succDashAppendsAcc ns [O] in
+  rewrite minusLast00 (succ ms) (succ ns) [] in
+  case lessThanOrGTE ns ms of
+    Left gt =>
+      rewrite minusDashAppendsTail ms ns gt [O] in
+      rewrite minusDashAppendsTail (succ ms) (succ ns) (succKeepsLessThan ns ms gt) [O] in
+      rewrite minusOfSuccs ms ns in Refl
+    Right (LTEEqual ms ns eq) =>
+      rewrite eq in
+      rewrite minusOfItSelf ns [O] in
+      rewrite minusOfItSelf (succ ns) [O] in Refl
+    Right (LTELessThan ms ns lt) =>
+      rewrite minusGreater ms ns lt [O] in
+      rewrite minusGreater (succ ms) (succ ns) (succKeepsLessThan ms ns lt) [O] in Refl
