@@ -92,6 +92,11 @@ lessThanAppended : (n : BiNat) -> (b : Bit) -> LT n (n -: b)
 lessThanAppended J         b = JLT J b
 lessThanAppended (ns -: n) b = LTAppend ns (ns -: n) (lessThanAppended ns n) n b
 
+succGreaterThanJ : (n : BiNat) -> GT (succ n) J
+succGreaterThanJ J         = JLT J O
+succGreaterThanJ (ns -: O) = JLT ns I
+succGreaterThanJ (ns -: I) = rewrite succDashAppendsAcc ns [O] in JLT (succ ns) O
+
 lessThanSucc : (n : BiNat) -> LT n (succ n)
 lessThanSucc J         = JLT J O
 lessThanSucc (ns -: O) = LTLeading ns ns Refl
