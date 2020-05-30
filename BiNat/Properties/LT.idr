@@ -113,6 +113,15 @@ predIsLessThan (ns -: O -: O) _ =
 predIsLessThan (ns -: I -: O) _ = LTAppend (ns -: O) (ns -: I) (LTLeading ns ns Refl) I O
 predIsLessThan (ns -: I)      _ = LTLeading ns ns Refl
 
+predLessThanEqual : (n : BiNat) -> LTE (pred n) n
+predLessThanEqual J              = LTEEqual J J Refl
+predLessThanEqual (J -: O)       = LTELessThan J (J -: O) (JLT J O)
+predLessThanEqual (ns -: n -: O) =
+  rewrite predDashAppendsAcc (ns -: n) [I] in
+  let lt = predIsLessThan (ns -: n) (JLT ns n) in
+  LTELessThan (pred (ns -: n) -: I) (ns -: n -: O) (LTAppend (pred (ns -: n)) (ns -: n) lt I O)
+predLessThanEqual (ns -: I)      = LTELessThan (ns -: O) (ns -: I) (LTLeading ns ns Refl)
+
 lessThanImpliesLTEPred : (m, n : BiNat) -> LT m n -> LTE m (pred n)
 lessThanImpliesLTEPred m J lt impossible
 lessThanImpliesLTEPred J (J -: O)       _ = LTEEqual J J Refl
