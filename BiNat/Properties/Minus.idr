@@ -395,23 +395,23 @@ predIntoMinusSucc (ms -: m) n =
 
 minusTwiceLeft : (l, m, n : BiNat) -> minus (minus l m) n = minus l (plus m n)
 minusTwiceLeft l m n = induction
-  (\k => (l', n' : BiNat) -> minus (minus l' k) n' = minus l' (plus k n'))
-  (\k, pk, l', n' =>
-    rewrite sym $ predIntoMinusSucc l' k in
+  (\k => minus (minus l k) n = minus l (plus k n))
+  (\k, pk =>
+    rewrite sym $ predIntoMinusSucc l k in
     rewrite sym $ jPlusIsSucc k in
-    rewrite sym $ plusAssociative J k n' in
-    rewrite jPlusIsSucc (plus k n') in
-    rewrite sym $ predIntoMinusSucc l' (plus k n') in
-    rewrite sym $ predIntoMinus (minus l' k) n' in
-    rewrite pk l' n' in Refl
+    rewrite sym $ plusAssociative J k n in
+    rewrite jPlusIsSucc (plus k n) in
+    rewrite sym $ predIntoMinusSucc l (plus k n) in
+    rewrite sym $ predIntoMinus (minus l k) n in
+    rewrite pk in Refl
   )
-  (\l', n' =>
-    rewrite minusJIsPred l' in
-    rewrite sym $ predIntoMinus l' n' in
-    rewrite jPlusIsSucc n' in
-    rewrite sym $ predIntoMinusSucc l' n' in Refl
+  (
+    rewrite minusJIsPred l in
+    rewrite sym $ predIntoMinus l n in
+    rewrite jPlusIsSucc n in
+    rewrite sym $ predIntoMinusSucc l n in Refl
   )
-  m l n
+  m
 
 minusLessThanOriginal : (m, n : BiNat) -> GT m J -> LT (minus m n) m
 minusLessThanOriginal m n mgtj = induction
