@@ -392,3 +392,23 @@ predIntoMinusSucc (ms -: m) n =
   rewrite predIntoMinus (ms -: m) n in
   rewrite minusOfSuccs (pred (ms -: m)) n in
   rewrite succOfPred (ms -: m) uninhabited in Refl
+
+minusTwiceLeft : (l, m, n : BiNat) -> minus (minus l m) n = minus l (plus m n)
+minusTwiceLeft l m n = induction
+  (\k => (l', n' : BiNat) -> minus (minus l' k) n' = minus l' (plus k n'))
+  (\k, pk, l', n' =>
+    rewrite sym $ predIntoMinusSucc l' k in
+    rewrite sym $ jPlusIsSucc k in
+    rewrite sym $ plusAssociative J k n' in
+    rewrite jPlusIsSucc (plus k n') in
+    rewrite sym $ predIntoMinusSucc l' (plus k n') in
+    rewrite sym $ predIntoMinus (minus l' k) n' in
+    rewrite pk l' n' in Refl
+  )
+  (\l', n' =>
+    rewrite minusJIsPred l' in
+    rewrite sym $ predIntoMinus l' n' in
+    rewrite jPlusIsSucc n' in
+    rewrite sym $ predIntoMinusSucc l' n' in Refl
+  )
+  m l n
