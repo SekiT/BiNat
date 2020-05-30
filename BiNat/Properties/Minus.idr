@@ -412,3 +412,13 @@ minusTwiceLeft l m n = induction
     rewrite sym $ predIntoMinusSucc l' n' in Refl
   )
   m l n
+
+minusLessThanOriginal : (m, n : BiNat) -> GT m J -> LT (minus m n) m
+minusLessThanOriginal m n mgtj = induction
+  (\k => LT (minus m k) m)
+  (\k, pk =>
+    let lte1 = predLessThanEqual (minus m k) in
+    replace {P = \z => LT z m} (predIntoMinusSucc m k) (transLTEandLT lte1 pk)
+  )
+  (replace {P = \z => LT z m} (sym $ minusJIsPred m) (predIsLessThan m mgtj))
+  n
