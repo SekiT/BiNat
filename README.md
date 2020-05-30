@@ -19,6 +19,21 @@ My exercise in [Idris](https://www.idris-lang.org/), reimplementing natural numb
   - Note that n is not structurally smaller than n + 1
   - There is also complete induction `BiNat.Properties.LT.completeInduction`
 
+## Examples
+
+### Factorial function using `BiNat.Properties.Induction.induction`
+
+```idr
+import BiNat
+import BiNat.Properties.Induction
+
+fact : BiNat -> BiNat
+fact = induction
+  (\k => BiNat)                  -- All intermediate values are of type BiNat
+  (\k, factk => (k + 1) * factk) -- Define fact (k + 1) using k and fact k
+  J                              -- RHS of fact J = J
+```
+
 ## Development
 
 We use [asdf](https://github.com/asdf-vm/asdf) to manage language versions.
