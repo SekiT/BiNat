@@ -385,3 +385,10 @@ predIntoMinus m n =
       rewrite minusGreater m n lt [] in
       let predmLTn = transLTEandLT (predLessThanEqual m) lt in
       rewrite minusGreater (pred m) n predmLTn [] in Refl
+
+predIntoMinusSucc : (m, n : BiNat) -> pred (minus m n) = minus m (succ n)
+predIntoMinusSucc J         n = rewrite jMinusIsJ n in rewrite jMinusIsJ (succ n) in Refl
+predIntoMinusSucc (ms -: m) n =
+  rewrite predIntoMinus (ms -: m) n in
+  rewrite minusOfSuccs (pred (ms -: m)) n in
+  rewrite succOfPred (ms -: m) uninhabited in Refl
