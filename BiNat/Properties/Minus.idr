@@ -347,3 +347,41 @@ minusOfSuccs (ms -: I)      (ns -: I) =
     Right (LTELessThan ms ns lt) =>
       rewrite minusGreater ms ns lt [O] in
       rewrite minusGreater (succ ms) (succ ns) (succKeepsLessThan ms ns lt) [O] in Refl
+
+predIntoMinus' : (m, n : BiNat) -> GT m n -> pred (minus m n) = minus (pred m) n
+predIntoMinus' m n gt = induction
+  (\k => GT k n -> pred (minus k n) = minus (pred k) n)
+  (\k, pk, nLTsucck =>
+    case lessThanImpliesLTEPred n (succ k) nLTsucck of
+      LTEEqual n (pred $ succ k) eq =>
+        rewrite eq in
+        rewrite predOfSucc k in
+        rewrite succNMinusNIsJ k in
+        rewrite minusOfItSelf k [] in Refl
+      LTELessThan n (pred $ succ k) lt =>
+        let nLTk = replace (predOfSucc k) lt in
+        rewrite sym $ succIntoMinus k n nLTk in
+        rewrite predOfSucc (minus k n) in
+        rewrite predOfSucc k in Refl
+  )
+  (\gt => absurd $ uninhabited gt)
+  m gt
+
+predIntoMinus : (m, n : BiNat) -> pred (minus m n) = minus (pred m) n
+predIntoMinus m n =
+  case lessThanOrGTE n m of
+    Left gt =>
+      predIntoMinus' m n gt
+    Right (LTEEqual m n eq) =>
+      rewrite eq in
+      rewrite minusOfItSelf n [] in
+      case predLessThanEqual n of
+        LTEEqual (pred n) n eq2 =>
+          rewrite eq2 in
+          sym $ minusOfItSelf n []
+        LTELessThan (pred n) n lt =>
+          rewrite minusGreater (pred n) n lt [] in Refl
+    Right (LTELessThan m n lt) =>
+      rewrite minusGreater m n lt [] in
+      let predmLTn = transLTEandLT (predLessThanEqual m) lt in
+      rewrite minusGreater (pred m) n predmLTn [] in Refl
