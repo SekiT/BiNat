@@ -35,7 +35,8 @@ lessThanTransitive (LTLeading ls ms eq)     (LTAppend ms ns lt I n)  =
   LTAppend ls ns (replace {P = \z => BiNat.LT z ns} (sym eq) lt) O n
 lessThanTransitive (LTAppend ls ms lt l O)  (LTLeading ms ns eq)     =
   LTAppend ls ns (replace {P = \z => BiNat.LT ls z} eq lt) l I
-lessThanTransitive (LTAppend ls ms lt1 l m) (LTAppend ms ns lt2 m n) = LTAppend ls ns (lessThanTransitive lt1 lt2) l n
+lessThanTransitive (LTAppend ls ms lt1 l m) (LTAppend ms ns lt2 m n) =
+  LTAppend ls ns (lessThanTransitive lt1 lt2) l n
 
 lessThanEqualTransitive : BiNat.LTE l m -> LTE m n -> LTE l n
 lessThanEqualTransitive (LTEEqual l m eq1)    (LTEEqual m n eq2)    =
@@ -53,7 +54,8 @@ lessThanEqualAntiSymmetric m n (LTEEqual m n eq1)    (LTELessThan n m lt2) =
   absurd $ nIsNotLessThanItself n (replace {P = \z => LT n z} eq1 lt2)
 lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTEEqual n m eq2)    =
   absurd $ nIsNotLessThanItself m (replace {P = \z => LT m z} eq2 lt1)
-lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) = absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
+lessThanEqualAntiSymmetric m n (LTELessThan m n lt1) (LTELessThan n m lt2) =
+  absurd $ lessThanImpliesNotGreaterThan m n lt1 lt2
 
 transLTandLTE : BiNat.LT l m -> LTE m n -> LT l n
 transLTandLTE lt1 (LTEEqual m n eq)     = rewrite sym eq in lt1
