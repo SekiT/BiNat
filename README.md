@@ -34,6 +34,20 @@ fact = induction
   J                              -- RHS of fact J = J
 ```
 
+## Fibonacci function using `BiNat.Properties.Induction.induction`
+
+```idr
+import BiNat
+import BiNat.Properties.Induction
+
+fib : BiNat -> BiNat
+fib n = fst $ induction                     -- Taking first element of the pair (fib n, fib (n + 1))
+  (\k => (BiNat, BiNat))                    -- Each accumulator is (fib k, fib (k + 1))
+  (\k, (fib0, fib1) => (fib1, fib0 + fib1))
+  (J, J)                                    -- (fib 1, fib 2) = (1, 1)
+  n
+```
+
 ## Development
 
 We use [asdf](https://github.com/asdf-vm/asdf) to manage language versions.
