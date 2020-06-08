@@ -4,6 +4,7 @@ import BiNat
 import BiNat.Properties.Plus
 import BiNat.Properties.Induction
 import BiNat.Properties.LT
+import BiNat.Properties.Mult
 
 %access public export
 %default total
@@ -422,3 +423,34 @@ minusLessThanOriginal m n mgtj = induction
   )
   (replace {P = \z => LT z m} (sym $ minusJIsPred m) (predIsLessThan m mgtj))
   n
+
+multDistributesMinusLeft : (l, m, n : BiNat) -> GT l m -> mult (minus l m) n = minus (mult l n) (mult m n)
+multDistributesMinusLeft l m n gt = induction
+  (\k => GT k m -> mult (minus k m) n = minus (mult k n) (mult m n))
+  (\k, pk, succkGTm =>
+    case lessThanImpliesLTEPred m (succ k) succkGTm of
+      LTEEqual _ _ eq =>
+        rewrite eq in
+        rewrite predOfSucc k in
+        rewrite succNMinusNIsJ k in
+        rewrite plusJIsSucc n in
+        rewrite predOfSucc n in
+        rewrite multOfSuccLeft k n in
+        rewrite plusNMinusN n (mult k n) in Refl
+      LTELessThan _ _ lt =>
+        let mLTk = replace (predOfSucc k) lt in
+        rewrite sym $ succIntoMinus k m mLTk in
+        rewrite multOfSuccLeft (minus k m) n in
+        rewrite pk mLTk in
+        rewrite multOfSuccLeft k n in
+        rewrite minusIntoPlusRight n (mult k n) (mult m n) (multNKeepsLT m k mLTk n) in Refl
+  )
+  (absurd . uninhabited)
+  l gt
+
+multDistributesMinusRight : (l, m, n : BiNat) -> GT m n -> mult l (minus m n) = minus (mult l m) (mult l n)
+multDistributesMinusRight l m n gt =
+  rewrite multSymmetric l (minus m n) in
+  rewrite multDistributesMinusLeft m n l gt in
+  rewrite multSymmetric l m in
+  rewrite multSymmetric l n in Refl
