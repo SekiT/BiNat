@@ -34,7 +34,7 @@ fact = induction
   J                              -- RHS of fact J = J
 ```
 
-## Fibonacci function using `BiNat.Properties.Induction.induction`
+### Fibonacci function using `BiNat.Properties.Induction.induction`
 
 ```idr
 import BiNat
