@@ -1,4 +1,4 @@
 package binat
 
-modules = BiNat, BiNat.Properties.Plus, BiNat.Properties.Induction, BiNat.Properties.Mult,
+modules = BiNat, BiNat.Properties.Plus, BiNat.Views, BiNat.Properties.Induction, BiNat.Properties.Mult,
   BiNat.Properties.LT, BiNat.Properties.Minus
