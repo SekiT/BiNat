@@ -2,6 +2,7 @@ module BiNat.Views
 
 import BiNat
 import BiNat.Properties.Plus
+import BiNat.Properties.Induction
 
 %default total
 
@@ -23,3 +24,14 @@ succView (x -: O) with (succView x)
     rewrite sym $ plusDashAppendsAcc n J O [O] in
     rewrite plusAssociative (n -: O) J J in
     IsSucc {n = n -: I}
+
+||| Recursive view for BiNat like Nat.
+public export
+data NatView : BiNat -> Type where
+  NJ : NatView J
+  NS : Lazy (NatView n) -> NatView (succ n)
+
+||| Reconstruct the BiNat with NJ and NS, like Nat.
+export
+natView : (n : BiNat) -> NatView n
+natView n = induction NatView (\k, nv => NS nv) NJ n
