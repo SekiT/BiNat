@@ -19,12 +19,7 @@ succView (x -: I) = IsSucc (x -: O)
 succView (x -: O) with (succView x)
   succView (J      -: O) | IsJ        = IsSucc J
   succView (succ n -: O) | (IsSucc n) =
-    rewrite shiftLeftDoubles (succ n) in
     rewrite sym $ plusJIsSucc n in
-    rewrite sym $ plusAssociative n J (n + J) in
-    rewrite plusSymmetric J (n + J) in
-    rewrite sym $ plusAssociative n J J in
-    rewrite plusAssociative n n (J -: O) in
-    rewrite plusAssociative (n + n) J J in
-    rewrite plusJIsSucc (n + n + J) in
-    IsSucc (n + n + J)
+    rewrite sym $ plusDashAppendsAcc n J O [O] in
+    rewrite plusAssociative (n -: O) J J in
+    IsSucc (n -: I)
