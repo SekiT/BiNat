@@ -6,11 +6,13 @@ import BiNat.Properties.Plus
 %default total
 
 ||| View for BiNat, of the form `IsJ` or `IsSucc n`
+public export
 data SuccView : BiNat -> Type where
   IsJ    : SuccView J
   IsSucc : (n : BiNat) -> SuccView (succ n)
 
 ||| Determines whether the `BiNat` is `J` or succ of something.
+export
 succView : (n : BiNat) -> SuccView n
 succView J = IsJ
 succView (x -: I) = IsSucc (x -: O)
